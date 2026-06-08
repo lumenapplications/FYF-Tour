@@ -241,13 +241,13 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
   .budget-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
   /* GEAR LIST - mobile card reflow */
-  .gear-list-header{display:none}
+  .gear-list-header{display:none !important}
   .gear-row{flex-wrap:wrap;gap:0;padding:0;border:0.5px solid var(--line);border-radius:6px;margin-bottom:6px;background:var(--bg2);overflow:hidden}
   .gr-name{width:100% !important;flex:none !important;padding:10px 12px;border-bottom:0.5px solid var(--line)}
   .gr-vendor{width:100% !important;flex:none !important;padding:8px 12px;border-bottom:0.5px solid var(--line)}
   .gr-rate{width:100% !important;flex:none !important;padding:8px 12px;border-bottom:0.5px solid var(--line)}
-  .gr-status{width:auto !important;flex:1 !important;padding:8px 12px}
-  .gr-del{width:auto !important;flex:none !important;padding:8px 12px}
+  .gr-status{width:auto !important;flex:1 !important;padding:8px 12px;display:flex;align-items:center}
+  .gr-del{width:auto !important;flex:none !important;padding:8px 12px;display:flex;align-items:center;justify-content:flex-end}
   .gear-row > div[style*="width:110px"],.gear-row > div[style*="width:90px"]{display:none !important}
   .gear-row > div[style*="width:60px"]{display:none !important}
   .gear-row > div[style*="width:120px"]{width:50% !important;flex:none !important;padding:8px 12px;border-bottom:0.5px solid var(--line)}
@@ -387,6 +387,13 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
 .action-edit-btn:hover{color:var(--text);border-color:var(--accent2);}
 .action-del-btn{font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:3px;cursor:pointer;border:0.5px solid transparent;background:transparent;color:var(--dim);text-transform:uppercase;letter-spacing:0.04em;}
 .action-del-btn:hover{color:var(--warn);border-color:rgba(224,122,64,0.3);background:rgba(224,122,64,0.06);}
+
+
+/* MOBILE FIELD LABELS - only show on mobile */
+.gear-field-label{display:none;font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--dim);margin-bottom:3px;}
+@media(max-width:768px){
+  .gear-field-label{display:block;}
+}
 
 </style>
 </head>
@@ -1380,21 +1387,27 @@ function renderGear() {
     row.id = 'drow-' + r.id;
     row.innerHTML = `
       <div class="gr-name" style="flex:2;min-width:0">
+        <div class="gear-field-label">Line Item</div>
         <input class="gear-input" type="text" value="${(r.item||'').replace(/"/g,'&quot;')}" placeholder="Line item"
           onblur="saveDesignField(${r.id},'item',this.value)">
       </div>
       <div class="gr-vendor" style="flex:1.5;min-width:0">
+        <div class="gear-field-label">Vendor / Contact</div>
         <input class="gear-input muted" type="text" value="${(r.vendor||'').replace(/"/g,'&quot;')}" placeholder="Vendor"
           onblur="saveDesignField(${r.id},'vendor',this.value)">
       </div>
-      <div class="gr-rate" style="width:200px;flex-shrink:0;display:flex;align-items:center;gap:4px;">
-        <input class="gear-input mono" type="number" value="${parseFloat(r.cost_min)||parseFloat(r.cost)||0}" min="0" style="width:80px"
-          placeholder="min" onblur="saveDesignField(${r.id},'cost_min',this.value)">
-        <span style="color:var(--dim);font-family:var(--font-mono);font-size:11px;flex-shrink:0">–</span>
-        <input class="gear-input mono" type="number" value="${parseFloat(r.cost_max)||parseFloat(r.cost)||0}" min="0" style="width:80px"
-          placeholder="max" onblur="saveDesignField(${r.id},'cost_max',this.value)">
+      <div class="gr-rate" style="width:200px;flex-shrink:0;">
+        <div class="gear-field-label">Est. Cost (min – max)</div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <input class="gear-input mono" type="number" value="${parseFloat(r.cost_min)||parseFloat(r.cost)||0}" min="0" style="width:80px"
+            placeholder="min" onblur="saveDesignField(${r.id},'cost_min',this.value)">
+          <span style="color:var(--dim);font-family:var(--font-mono);font-size:11px;flex-shrink:0">–</span>
+          <input class="gear-input mono" type="number" value="${parseFloat(r.cost_max)||parseFloat(r.cost)||0}" min="0" style="width:80px"
+            placeholder="max" onblur="saveDesignField(${r.id},'cost_max',this.value)">
+        </div>
       </div>
       <div class="gr-status" style="width:100px;flex-shrink:0">
+        <div class="gear-field-label">Status</div>
         <button class="status-toggle ${r.status === 'confirmed' ? 'confirmed' : 'open'}" id="dstatus-${r.id}"
           onclick="toggleDesignStatus(${r.id})">${r.status === 'confirmed' ? (r.confirmed_by ? '✓ ' + r.confirmed_by : 'confirmed') : 'open'}</button>
       </div>
@@ -1440,19 +1453,24 @@ function renderGear() {
     row.id = 'grow-' + r.id;
     row.innerHTML = `
       <div class="gr-name" style="flex:2;min-width:0">
+        <div class="gear-field-label">Item</div>
         <input class="gear-input" type="text" value="${(r.item||'').replace(/"/g,'&quot;')}" placeholder="Item name"
           onblur="saveGearField(${r.id},'item',this.value)">
       </div>
       <div class="gr-vendor" style="flex:1.5;min-width:0">
+        <div class="gear-field-label">Vendor</div>
         <input class="gear-input muted" type="text" value="${(r.vendor||'').replace(/"/g,'&quot;')}" placeholder="Vendor"
           onblur="saveGearField(${r.id},'vendor',this.value)">
       </div>
-      <div class="gr-rate" style="width:190px;flex-shrink:0;display:flex;align-items:center;gap:4px;">
-        <input class="gear-input mono" type="number" value="${parseFloat(r.rate_min)||parseFloat(r.rate)||0}" min="0" style="width:78px"
-          placeholder="min" onblur="saveGearField(${r.id},'rate_min',this.value)">
-        <span style="color:var(--dim);font-family:var(--font-mono);font-size:11px;flex-shrink:0">–</span>
-        <input class="gear-input mono" type="number" value="${parseFloat(r.rate_max)||parseFloat(r.rate)||0}" min="0" style="width:78px"
-          placeholder="max" onblur="saveGearField(${r.id},'rate_max',this.value)">
+      <div class="gr-rate" style="width:190px;flex-shrink:0;">
+        <div class="gear-field-label">Rate / Week (min – max)</div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <input class="gear-input mono" type="number" value="${parseFloat(r.rate_min)||parseFloat(r.rate)||0}" min="0" style="width:78px"
+            placeholder="min" onblur="saveGearField(${r.id},'rate_min',this.value)">
+          <span style="color:var(--dim);font-family:var(--font-mono);font-size:11px;flex-shrink:0">–</span>
+          <input class="gear-input mono" type="number" value="${parseFloat(r.rate_max)||parseFloat(r.rate)||0}" min="0" style="width:78px"
+            placeholder="max" onblur="saveGearField(${r.id},'rate_max',this.value)">
+        </div>
       </div>
       <div style="width:60px;flex-shrink:0">
         <input class="gear-input mono" type="number" value="${r.qty}" min="0" style="width:100%"
@@ -1460,13 +1478,15 @@ function renderGear() {
       </div>
       <div style="width:110px;flex-shrink:0;font-family:var(--font-mono);font-size:11px;color:var(--text);text-align:right;line-height:1.4" id="gtotal-${r.id}">${fmtRange((parseFloat(r.rate_min)||parseFloat(r.rate)||0)*(parseFloat(r.qty)||0),(parseFloat(r.rate_max)||parseFloat(r.rate)||0)*(parseFloat(r.qty)||0))}</div>
       <div style="width:120px;flex-shrink:0">
+        <div class="gear-field-label">Category</div>
         <select class="cat-select" onchange="saveGearField(${r.id},'cat',this.value);scheduleGearRerender()">${catOpts}</select>
       </div>
-      <div style="width:100px;flex-shrink:0">
+      <div class="gr-status" style="width:100px;flex-shrink:0">
+        <div class="gear-field-label">Status</div>
         <button class="status-toggle ${r.status==='confirmed'?'confirmed':'open'}" id="gstatus-${r.id}"
           onclick="toggleGearStatus(${r.id})">${r.status==='confirmed' ? (r.confirmed_by ? '✓ ' + r.confirmed_by : 'confirmed') : 'open'}</button>
       </div>
-      <div style="width:28px;flex-shrink:0">
+      <div class="gr-del" style="width:28px;flex-shrink:0">
         <button class="del-btn" onclick="deleteGearRow(${r.id})" style="font-size:10px;font-family:var(--font-mono);width:28px;">×</button>
       </div>
     `;
