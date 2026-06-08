@@ -823,40 +823,26 @@ async function fetchAll() {
   setSyncState('syncing', 'loading...');
   setLoadProgress(10, 'Fetching data...');
   try {
-    const [l, g, d, t, a, dir, tl] = await Promise.all([
-      sb.from('labor_rows').select('*').order('sort_order'),
-      sb.from('gear_rows').select('*').order('sort_order'),
-      sb.from('design_rows').select('*').order('sort_order'),
-      sb.from('tour_dates').select('*').order('sort_order'),
-      sb.from('action_items').select('*').order('sort_order'),
-      sb.from('directory').select('*').order('sort_order'),
-      sb.from('timeline_events').select('*').order('sort_order'),
+    const safe = async (table) => {
+      try {
+        const res = await sb.from(table).select('*').order('sort_order');
+        if (res && res.error) console.error(table + ':', res.error);
+        return (res && res.data) ? res.data : [];
+      } catch(e) {
+        console.error(table + ' fetch failed:', e);
+        return [];
+      }
+    };
+
+    [laborRows, gearRows, designRows, tourDates, actionItems, directoryRows, timelineEvents] = await Promise.all([
+      safe('labor_rows'),
+      safe('gear_rows'),
+      safe('design_rows'),
+      safe('tour_dates'),
+      safe('action_items'),
+      safe('directory'),
+      safe('timeline_events'),
     ]);
-
-    // log individual errors but don't block render
-    if (l.error) console.error('labor_rows:', l.error);
-    if (g.error) console.error('gear_rows:', g.error);
-    if (d.error) console.error('design_rows:', d.error);
-    if (t.error) console.error('tour_dates:', t.error);
-    if (a.error) console.error('action_items:', a.error);
-    if (dir.error) console.error('directory:', dir.error);
-    if (tl.error) console.error('timeline_events:', tl.error);
-
-    // use whatever loaded successfully, fall back to empty arrays
-    laborRows     = l.data  || [];
-    gearRows      = g.data  || [];
-    designRows    = d.data  || [];
-    tourDates     = t.data  || [];
-    actionItems   = a.data  || [];
-    directoryRows   = dir.data || [];
-    timelineEvents  = tl.data  || [];
-
-    // if everything failed, show error state
-    if (!l.data && !g.data && !d.data && !t.data && !a.data && !dir.data && !tl.data) {
-      setSyncState('error', 'load error');
-      setLoadProgress(100, 'Could not load data — check RLS settings in Supabase.');
-      return false;
-    }
 
     setLoadProgress(80, 'Rendering...');
     return true;
