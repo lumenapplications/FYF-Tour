@@ -244,14 +244,18 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
     <div class="page-header-right">Tour start<br><span>August 4, 2026</span><br><br>Dallas, TX</div>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;">
-    <div style="display:flex;align-items:center;gap:16px;">
+    <div style="display:flex;align-items:center;gap:20px;">
       <div style="font-family:var(--font-mono);font-size:11px;color:var(--dim);"><span id="dir-count">—</span> active</div>
-      <button id="dir-toggle-archived" onclick="toggleArchivedView()"
-        style="font-family:var(--font-mono);font-size:11px;background:none;border:none;cursor:pointer;color:var(--muted);letter-spacing:0.04em;padding:0;">
-        Archived (<span id="dir-archived-count">0</span>)
-      </button>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--dim);" id="dir-archive-dot"></div>
+        <button id="dir-toggle-archived" onclick="toggleArchivedView()"
+          style="font-family:var(--font-mono);font-size:11px;background:none;border:none;cursor:pointer;color:var(--muted);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:3px;">
+          Archived
+        </button>
+        <span id="dir-archived-count" style="font-family:var(--font-mono);font-size:11px;color:var(--dim);">(0)</span>
+      </div>
     </div>
-    <button class="add-btn" onclick="showAddPersonModal()">+ Add Person</button>
+    <button class="add-btn" id="dir-add-btn" onclick="showAddPersonModal()">+ Add Person</button>
   </div>
   <div id="directory-body"></div>
 </section>
@@ -573,15 +577,23 @@ function renderDirectory() {
   const visible  = showArchived ? archived : active;
 
   // count badges
-  document.getElementById('dir-count').textContent = active.length;
-  document.getElementById('dir-archived-count').textContent = archived.length;
+  const countEl = document.getElementById('dir-count');
+  if (countEl) countEl.textContent = active.length;
+  const archCountEl = document.getElementById('dir-archived-count');
+  if (archCountEl) archCountEl.textContent = '(' + archived.length + ')';
 
   // toggle button state
   const tb = document.getElementById('dir-toggle-archived');
   if (tb) {
-    tb.textContent = showArchived ? '← Active roster' : `Archived (${archived.length})`;
+    tb.textContent = showArchived ? '← Active roster' : 'Archived';
     tb.style.color = showArchived ? 'var(--accent)' : 'var(--muted)';
   }
+  const dot = document.getElementById('dir-archive-dot');
+  if (dot) dot.style.background = showArchived ? 'var(--accent2)' : 'var(--dim)';
+
+  // hide add button in archived view
+  const addBtn = document.getElementById('dir-add-btn');
+  if (addBtn) addBtn.style.display = showArchived ? 'none' : '';
 
   if (visible.length === 0) {
     const empty = document.createElement('div');
