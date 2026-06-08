@@ -1527,7 +1527,7 @@ function showAddGearModal() {
   document.getElementById('add-gear-modal').style.display = 'flex';
   document.getElementById('gmodal-item').value = '';
   document.getElementById('gmodal-vendor').value = '';
-  document.getElementById('gmodal-rate').value = '';
+  // gmodal-rate removed (now split into rate-min/rate-max)
   document.getElementById('gmodal-qty').value = '13';
   setTimeout(() => document.getElementById('gmodal-item').focus(), 50);
 }
@@ -1557,7 +1557,7 @@ function showAddDesignModal() {
   document.getElementById('add-design-modal').style.display = 'flex';
   document.getElementById('dmodal-item').value = '';
   document.getElementById('dmodal-vendor').value = '';
-  document.getElementById('dmodal-cost').value = '';
+  // dmodal-cost removed (now split into cost-min/cost-max)
   setTimeout(() => document.getElementById('dmodal-item').focus(), 50);
 }
 function hideAddDesignModal() { document.getElementById('add-design-modal').style.display = 'none'; }
