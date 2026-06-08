@@ -1444,7 +1444,7 @@ document.getElementById('add-design-modal').addEventListener('click', e => { if 
 
 
 // ── TOUR DATES ────────────────────────────────────────────────────────
-const LEG_OPTIONS = ['Rehearsal','Off Day','NA Tour Date','Canada Date','EU Tour Date'];
+const DATE_LEG_OPTIONS = ['Rehearsal','Off Day','NA Tour Date','Canada Date','EU Tour Date'];
 const TIER_OPTIONS = ['Base','Mid','Max','N/A'];
 
 function renderDates() {
@@ -1457,7 +1457,7 @@ function renderDates() {
     row.className = 'date-row';
     row.id = 'tdrow-' + d.id;
 
-    const legOpts = LEG_OPTIONS.map(o => `<option value="${o}" ${d.leg===o?'selected':''}>${o}</option>`).join('');
+    const legOpts = DATE_LEG_OPTIONS.map(o => `<option value="${o}" ${d.leg===o?'selected':''}>${o}</option>`).join('');
     const tierOpts = TIER_OPTIONS.map(o => `<option value="${o}" ${d.tier===o?'selected':''}>${o}</option>`).join('');
 
     const legColor = d.leg==='Rehearsal' ? 'rgba(90,143,224,0.4)'
