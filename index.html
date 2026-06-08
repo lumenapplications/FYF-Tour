@@ -830,6 +830,7 @@ async function fetchAll() {
       sb.from('tour_dates').select('*').order('sort_order'),
       sb.from('action_items').select('*').order('sort_order'),
       sb.from('directory').select('*').order('sort_order'),
+      sb.from('timeline_events').select('*').order('sort_order'),
     ]);
 
     // log individual errors but don't block render
