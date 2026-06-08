@@ -340,6 +340,38 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
 .tl-move-btn{width:18px;height:18px;border-radius:3px;border:0.5px solid transparent;background:transparent;color:var(--dim);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;transition:all 0.12s;flex-direction:column;gap:1px;}
 .tl-move-btn:hover{color:var(--muted);}
 
+
+/* ACTION ITEMS */
+.action-card{border:0.5px solid var(--line);border-radius:6px;background:var(--bg2);margin-bottom:6px;overflow:hidden;transition:border-color 0.15s;}
+.action-card:hover{border-color:var(--line2);}
+.action-card.done-card{opacity:0.55;}
+.action-card.expanded{border-color:var(--line2);}
+.action-top{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;}
+.action-checkbox{width:20px;height:20px;border-radius:4px;flex-shrink:0;border:0.5px solid var(--dim);background:transparent;display:flex;align-items:center;justify-content:center;transition:all 0.15s;cursor:pointer;}
+.action-checkbox.checked{background:rgba(90,171,122,0.2);border-color:var(--success);}
+.action-title{flex:1;font-size:13px;color:var(--text);line-height:1.4;}
+.action-title.done-text{text-decoration:line-through;color:var(--muted);}
+.action-meta{display:flex;gap:12px;align-items:center;flex-shrink:0;}
+.action-owner-badge{font-family:var(--font-mono);font-size:10px;color:var(--muted);padding:2px 7px;border:0.5px solid var(--line2);border-radius:3px;}
+.action-deadline-badge{font-family:var(--font-mono);font-size:10px;color:var(--warn);padding:2px 7px;border:0.5px solid rgba(224,122,64,0.25);border-radius:3px;}
+.action-expand-arrow{font-size:10px;color:var(--dim);transition:transform 0.2s;margin-left:4px;flex-shrink:0;}
+.action-expand-arrow.open{transform:rotate(180deg);}
+.action-detail{display:none;padding:0 14px 14px 46px;border-top:0.5px solid var(--line);}
+.action-detail.visible{display:block;}
+.action-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;margin-top:12px;}
+.action-detail-field{display:flex;flex-direction:column;gap:4px;}
+.action-detail-label{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);}
+.action-detail-input{background:transparent;border:none;border-bottom:0.5px solid var(--line);color:var(--text);font-family:var(--font-body);font-size:12px;padding:3px 0;width:100%;transition:border-color 0.15s;}
+.action-detail-input:focus{outline:none;border-bottom-color:var(--accent2);}
+.action-detail-textarea{background:transparent;border:0.5px solid var(--line);border-radius:3px;color:var(--muted);font-family:var(--font-body);font-size:12px;padding:6px 8px;width:100%;resize:vertical;min-height:50px;transition:border-color 0.15s;}
+.action-detail-textarea:focus{outline:none;border-color:var(--accent2);}
+.action-completed-stamp{font-family:var(--font-mono);font-size:11px;color:var(--success);margin-top:8px;padding:6px 10px;background:rgba(90,171,122,0.06);border-radius:3px;border:0.5px solid rgba(90,171,122,0.2);}
+.action-edit-del{display:flex;gap:6px;margin-top:10px;}
+.action-edit-btn{font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:3px;cursor:pointer;border:0.5px solid var(--line2);background:transparent;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;}
+.action-edit-btn:hover{color:var(--text);border-color:var(--accent2);}
+.action-del-btn{font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:3px;cursor:pointer;border:0.5px solid transparent;background:transparent;color:var(--dim);text-transform:uppercase;letter-spacing:0.04em;}
+.action-del-btn:hover{color:var(--warn);border-color:rgba(224,122,64,0.3);background:rgba(224,122,64,0.06);}
+
 </style>
 </head>
 <body>
@@ -725,10 +757,51 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
 <section class="pane" id="pane-actions">
   <div class="page-header">
     <div class="page-header-left"><h1>Action Items</h1><p>Outstanding tasks &amp; open items</p></div>
-    <div class="page-header-right" id="action-progress-label">— / — complete</div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+      <span id="action-progress-label" style="font-family:var(--font-mono);font-size:11px;color:var(--dim);">— / — complete</span>
+      <button class="add-btn" onclick="showAddActionModal()">+ Add Task</button>
+    </div>
   </div>
-  <div class="actions-grid" id="actions-container"></div>
+
+  <!-- TABS -->
+  <div style="display:flex;gap:4px;margin-bottom:24px;">
+    <button class="toggle-btn active" id="action-tab-open" onclick="setActionTab('open')">Open <span id="action-open-count" style="opacity:0.6;font-size:10px;"></span></button>
+    <button class="toggle-btn" id="action-tab-done" onclick="setActionTab('done')">Completed <span id="action-done-count" style="opacity:0.6;font-size:10px;"></span></button>
+  </div>
+
+  <div id="actions-open-list"></div>
+  <div id="actions-done-list" style="display:none;"></div>
 </section>
+
+<!-- ADD / EDIT ACTION MODAL -->
+<div id="add-action-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border:0.5px solid var(--line2);border-radius:10px;padding:32px;width:500px;max-width:92vw;">
+    <div style="font-family:var(--font-display);font-size:28px;color:var(--text);margin-bottom:20px;letter-spacing:0.04em;" id="action-modal-title">Add Task</div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-bottom:6px;">Task</div>
+        <input id="amodal-text" type="text" placeholder="What needs to get done?" style="background:var(--bg3);border:0.5px solid var(--line2);color:var(--text);font-family:var(--font-body);font-size:13px;border-radius:4px;padding:8px 10px;width:100%;">
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-bottom:6px;">Owner / Assigned to</div>
+        <input id="amodal-owner" type="text" placeholder="Who is handling this?" style="background:var(--bg3);border:0.5px solid var(--line2);color:var(--text);font-family:var(--font-body);font-size:13px;border-radius:4px;padding:8px 10px;width:100%;">
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-bottom:6px;">Deadline</div>
+        <input id="amodal-deadline" type="text" placeholder="e.g. Jun 15, 2026" style="background:var(--bg3);border:0.5px solid var(--line2);color:var(--text);font-family:var(--font-mono);font-size:13px;border-radius:4px;padding:8px 10px;width:100%;">
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-bottom:6px;">Notes</div>
+        <textarea id="amodal-notes" placeholder="Additional context..." rows="3" style="background:var(--bg3);border:0.5px solid var(--line2);color:var(--text);font-family:var(--font-body);font-size:13px;border-radius:4px;padding:8px 10px;width:100%;resize:vertical;"></textarea>
+      </div>
+    </div>
+    <input type="hidden" id="amodal-edit-id" value="">
+    <div style="display:flex;gap:10px;margin-top:24px;justify-content:flex-end;">
+      <button onclick="hideAddActionModal()" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;padding:8px 18px;border-radius:4px;cursor:pointer;border:0.5px solid var(--line2);background:transparent;color:var(--muted);">Cancel</button>
+      <button onclick="submitActionModal()" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;padding:8px 18px;border-radius:4px;cursor:pointer;border:0.5px solid rgba(232,213,160,0.3);background:rgba(232,213,160,0.1);color:var(--accent);" id="amodal-submit-btn">Add Task</button>
+    </div>
+  </div>
+</div>
 
 </main>
 
@@ -1650,46 +1723,233 @@ function applyDateFilter() {
 }
 
 // ── ACTIONS ───────────────────────────────────────────────────────────
-function renderActions() {
-  const container = document.getElementById('actions-container');
-  container.innerHTML = '';
-  actionItems.forEach(a => {
-    const div = document.createElement('div');
-    div.className = 'action-item' + (a.done ? ' done' : '');
-    div.id = 'aitem-' + a.id;
-    div.onclick = () => toggleAction(a.id);
-    div.innerHTML = `
-      <div class="action-check" style="${a.done ? 'background:rgba(90,171,122,0.2);border-color:var(--success)' : ''}">
-        <svg width="10" height="10" viewBox="0 0 10 10" style="display:${a.done?'block':'none'};stroke:var(--success);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;" id="asvg-${a.id}">
-          <polyline points="1.5,5 4,7.5 8.5,2.5"/>
-        </svg>
-      </div>
-      <span class="action-text">${a.text}</span>
-    `;
-    container.appendChild(div);
-  });
-  updateActionProgress();
+let actionTab = 'open';
+let expandedActions = new Set();
+
+function setActionTab(tab) {
+  actionTab = tab;
+  document.getElementById('action-tab-open').classList.toggle('active', tab === 'open');
+  document.getElementById('action-tab-done').classList.toggle('active', tab === 'done');
+  document.getElementById('actions-open-list').style.display = tab === 'open' ? '' : 'none';
+  document.getElementById('actions-done-list').style.display = tab === 'done' ? '' : 'none';
 }
 
-async function toggleAction(id) {
+function renderActions() {
+  const open = actionItems.filter(a => !a.done);
+  const done = actionItems.filter(a => a.done);
+
+  document.getElementById('action-open-count').textContent = '(' + open.length + ')';
+  document.getElementById('action-done-count').textContent = '(' + done.length + ')';
+
+  const openEl = document.getElementById('action-progress-label');
+  if (openEl) openEl.textContent = done.length + ' / ' + actionItems.length + ' complete';
+
+  renderActionList('actions-open-list', open);
+  renderActionList('actions-done-list', done);
+}
+
+function renderActionList(containerId, items) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (items.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'padding:32px;text-align:center;font-family:var(--font-mono);font-size:12px;color:var(--dim);';
+    empty.textContent = containerId.includes('done') ? 'No completed tasks yet.' : 'No open tasks.';
+    container.appendChild(empty);
+    return;
+  }
+
+  items.forEach(a => {
+    const isExpanded = expandedActions.has(a.id);
+    const card = document.createElement('div');
+    card.className = 'action-card' + (a.done ? ' done-card' : '') + (isExpanded ? ' expanded' : '');
+    card.id = 'acard-' + a.id;
+
+    const ownerBadge = a.owner ? `<span class="action-owner-badge">${a.owner}</span>` : '';
+    const deadlineBadge = a.deadline ? `<span class="action-deadline-badge">⏱ ${a.deadline}</span>` : '';
+    const completedStamp = a.done && a.completed_by
+      ? `<div class="action-completed-stamp">✓ Completed by ${a.completed_by}${a.completed_at ? ' · ' + a.completed_at : ''}</div>`
+      : '';
+
+    card.innerHTML = `
+      <div class="action-top" onclick="toggleActionExpand(${a.id})">
+        <div class="action-checkbox ${a.done ? 'checked' : ''}" onclick="event.stopPropagation();handleActionCheck(${a.id})">
+          ${a.done ? '<svg width="10" height="10" viewBox="0 0 10 10" style="stroke:var(--success);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>' : ''}
+        </div>
+        <span class="action-title ${a.done ? 'done-text' : ''}">${a.text}</span>
+        <div class="action-meta">
+          ${ownerBadge}
+          ${deadlineBadge}
+        </div>
+        <span class="action-expand-arrow ${isExpanded ? 'open' : ''}">▼</span>
+      </div>
+      <div class="action-detail ${isExpanded ? 'visible' : ''}">
+        <div class="action-detail-grid">
+          <div class="action-detail-field">
+            <span class="action-detail-label">Owner</span>
+            <input class="action-detail-input" type="text" value="${(a.owner||'').replace(/"/g,'&quot;')}" placeholder="Assigned to..."
+              onblur="saveActionField(${a.id},'owner',this.value)">
+          </div>
+          <div class="action-detail-field">
+            <span class="action-detail-label">Deadline</span>
+            <input class="action-detail-input" type="text" value="${(a.deadline||'').replace(/"/g,'&quot;')}" placeholder="e.g. Jun 15, 2026"
+              onblur="saveActionField(${a.id},'deadline',this.value)">
+          </div>
+        </div>
+        <div class="action-detail-field" style="margin-bottom:10px;">
+          <span class="action-detail-label">Notes</span>
+          <textarea class="action-detail-textarea" placeholder="Additional context..."
+            onblur="saveActionField(${a.id},'notes',this.value)">${a.notes||''}</textarea>
+        </div>
+        ${completedStamp}
+        <div class="action-edit-del">
+          <button class="action-edit-btn" onclick="editAction(${a.id})">✎ Edit</button>
+          <button class="action-del-btn" onclick="deleteAction(${a.id})">× Remove</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleActionExpand(id) {
+  if (expandedActions.has(id)) {
+    expandedActions.delete(id);
+  } else {
+    expandedActions.add(id);
+  }
+  renderActions();
+}
+
+async function handleActionCheck(id) {
   const a = actionItems.find(x => x.id === id);
   if (!a) return;
-  a.done = !a.done;
-  const item = document.getElementById('aitem-' + id);
-  const svg = document.getElementById('asvg-' + id);
-  const check = item.querySelector('.action-check');
-  item.classList.toggle('done', a.done);
-  check.style.background = a.done ? 'rgba(90,171,122,0.2)' : '';
-  check.style.borderColor = a.done ? 'var(--success)' : '';
-  svg.style.display = a.done ? 'block' : 'none';
-  updateActionProgress();
-  await saveField('action_items', id, 'done', a.done);
+
+  if (a.done) {
+    // uncheck — no prompt needed
+    a.done = false;
+    a.completed_by = '';
+    a.completed_at = '';
+    renderActions();
+    await Promise.all([
+      saveField('action_items', id, 'done', false),
+      saveField('action_items', id, 'completed_by', ''),
+      saveField('action_items', id, 'completed_at', ''),
+    ]);
+  } else {
+    const initials = prompt('Completed by (initials):');
+    if (initials === null) return;
+    const now = new Date();
+    const stamp = now.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })
+      + ' ' + now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+    a.done = true;
+    a.completed_by = initials.trim().toUpperCase();
+    a.completed_at = stamp;
+    renderActions();
+    await Promise.all([
+      saveField('action_items', id, 'done', true),
+      saveField('action_items', id, 'completed_by', a.completed_by),
+      saveField('action_items', id, 'completed_at', stamp),
+    ]);
+  }
+}
+
+async function saveActionField(id, field, value) {
+  const a = actionItems.find(x => x.id === id);
+  if (!a) return;
+  a[field] = value;
+  // update badges without full re-render
+  const card = document.getElementById('acard-' + id);
+  if (card) {
+    const ownerEl = card.querySelector('.action-owner-badge');
+    const deadlineEl = card.querySelector('.action-deadline-badge');
+    if (field === 'owner' && ownerEl) ownerEl.textContent = value;
+    if (field === 'deadline' && deadlineEl) deadlineEl.textContent = '⏱ ' + value;
+  }
+  await saveField('action_items', id, field, value);
+}
+
+async function deleteAction(id) {
+  if (!confirm('Remove this task?')) return;
+  setSyncState('syncing', 'deleting...');
+  const { error } = await sb.from('action_items').delete().eq('id', id);
+  if (error) { setSyncState('error', 'delete error'); return; }
+  actionItems = actionItems.filter(a => a.id !== id);
+  renderActions();
+  setSyncState('live', 'live');
+}
+
+function editAction(id) {
+  const a = actionItems.find(x => x.id === id);
+  if (!a) return;
+  document.getElementById('amodal-edit-id').value = id;
+  document.getElementById('amodal-text').value = a.text || '';
+  document.getElementById('amodal-owner').value = a.owner || '';
+  document.getElementById('amodal-deadline').value = a.deadline || '';
+  document.getElementById('amodal-notes').value = a.notes || '';
+  document.getElementById('action-modal-title').textContent = 'Edit Task';
+  document.getElementById('amodal-submit-btn').textContent = 'Save Changes';
+  document.getElementById('add-action-modal').style.display = 'flex';
+}
+
+function showAddActionModal() {
+  document.getElementById('amodal-edit-id').value = '';
+  document.getElementById('amodal-text').value = '';
+  document.getElementById('amodal-owner').value = '';
+  document.getElementById('amodal-deadline').value = '';
+  document.getElementById('amodal-notes').value = '';
+  document.getElementById('action-modal-title').textContent = 'Add Task';
+  document.getElementById('amodal-submit-btn').textContent = 'Add Task';
+  document.getElementById('add-action-modal').style.display = 'flex';
+  setTimeout(() => document.getElementById('amodal-text').focus(), 50);
+}
+
+function hideAddActionModal() {
+  document.getElementById('add-action-modal').style.display = 'none';
+}
+
+async function submitActionModal() {
+  const editId = document.getElementById('amodal-edit-id').value;
+  const text     = document.getElementById('amodal-text').value.trim();
+  const owner    = document.getElementById('amodal-owner').value.trim();
+  const deadline = document.getElementById('amodal-deadline').value.trim();
+  const notes    = document.getElementById('amodal-notes').value.trim();
+  if (!text) return;
+
+  setSyncState('syncing', 'saving...');
+  if (editId) {
+    const numId = parseInt(editId);
+    const { error } = await sb.from('action_items').update({ text, owner, deadline, notes }).eq('id', numId);
+    if (error) { setSyncState('error', 'save error'); return; }
+    const a = actionItems.find(x => x.id === numId);
+    if (a) Object.assign(a, { text, owner, deadline, notes });
+  } else {
+    const maxOrder = actionItems.length ? Math.max(...actionItems.map(a => a.sort_order||0)) : 0;
+    const { data, error } = await sb.from('action_items').insert([{
+      sort_order: maxOrder + 1, text, owner, deadline, notes, done: false,
+      completed_by: '', completed_at: ''
+    }]).select();
+    if (error) { setSyncState('error', 'save error'); return; }
+    actionItems.push(data[0]);
+  }
+
+  hideAddActionModal();
+  renderActions();
+  setSyncState('live', 'live');
 }
 
 function updateActionProgress() {
   const done = actionItems.filter(a => a.done).length;
-  document.getElementById('action-progress-label').textContent = `${done} / ${actionItems.length} complete`;
+  const el = document.getElementById('action-progress-label');
+  if (el) el.textContent = done + ' / ' + actionItems.length + ' complete';
 }
+
+document.getElementById('add-action-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('add-action-modal')) hideAddActionModal();
+});
+
 
 // ── REALTIME SUBSCRIPTIONS ────────────────────────────────────────────
 function subscribeRealtime() {
@@ -1725,6 +1985,12 @@ function subscribeRealtime() {
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'action_items' }, payload => {
       const idx = actionItems.findIndex(r => r.id === payload.new.id);
       if (idx !== -1) { actionItems[idx] = payload.new; renderActions(); }
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'action_items' }, payload => {
+      if (!actionItems.find(a => a.id === payload.new.id)) { actionItems.push(payload.new); renderActions(); }
+    })
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'action_items' }, payload => {
+      actionItems = actionItems.filter(a => a.id !== payload.old.id); renderActions();
     })
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'timeline_events' }, payload => {
       const idx = timelineEvents.findIndex(e => e.id === payload.new.id);
