@@ -243,8 +243,14 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
     </div>
     <div class="page-header-right">Tour start<br><span>August 4, 2026</span><br><br>Dallas, TX</div>
   </div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--dim);"><span id="dir-count">—</span> people</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--dim);"><span id="dir-count">—</span> active</div>
+      <button id="dir-toggle-archived" onclick="toggleArchivedView()"
+        style="font-family:var(--font-mono);font-size:11px;background:none;border:none;cursor:pointer;color:var(--muted);letter-spacing:0.04em;padding:0;">
+        Archived (<span id="dir-archived-count">0</span>)
+      </button>
+    </div>
     <button class="add-btn" onclick="showAddPersonModal()">+ Add Person</button>
   </div>
   <div id="directory-body"></div>
@@ -452,6 +458,7 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
         <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-bottom:6px;">Department</div>
         <select id="modal-dept" style="background:var(--bg3);border:0.5px solid var(--line2);color:var(--text);font-family:var(--font-body);font-size:13px;border-radius:4px;padding:8px 10px;width:100%;cursor:pointer;">
           <option>Tour Management</option>
+          <option>Production Management</option>
           <option>Audio</option>
           <option>Lighting &amp; Video</option>
           <option>Backline</option>
@@ -547,7 +554,8 @@ async function fetchAll() {
 
 
 // ── DIRECTORY ─────────────────────────────────────────────────────────
-const DEPTS = ['Tour Management','Audio','Lighting & Video','Backline','Playback','Band'];
+const DEPTS = ['Tour Management','Production Management','Audio','Lighting & Video','Backline','Playback','Band'];
+let showArchived = false;
 
 function getInitials(name) {
   if (!name || name === 'TBD') return '—';
@@ -559,7 +567,29 @@ function renderDirectory() {
   const body = document.getElementById('directory-body');
   if (!body) return;
   body.innerHTML = '';
-  document.getElementById('dir-count').textContent = directoryRows.length;
+
+  const active   = directoryRows.filter(r => r.active !== false);
+  const archived = directoryRows.filter(r => r.active === false);
+  const visible  = showArchived ? archived : active;
+
+  // count badges
+  document.getElementById('dir-count').textContent = active.length;
+  document.getElementById('dir-archived-count').textContent = archived.length;
+
+  // toggle button state
+  const tb = document.getElementById('dir-toggle-archived');
+  if (tb) {
+    tb.textContent = showArchived ? '← Active roster' : `Archived (${archived.length})`;
+    tb.style.color = showArchived ? 'var(--accent)' : 'var(--muted)';
+  }
+
+  if (visible.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'padding:32px;text-align:center;font-family:var(--font-mono);font-size:12px;color:var(--dim);';
+    empty.textContent = showArchived ? 'No archived crew members.' : 'No active crew members.';
+    body.appendChild(empty);
+    return;
+  }
 
   // Column header
   const header = document.createElement('div');
@@ -568,7 +598,7 @@ function renderDirectory() {
   body.appendChild(header);
 
   let lastDept = null;
-  directoryRows.forEach(p => {
+  visible.forEach(p => {
     if (p.dept !== lastDept) {
       lastDept = p.dept;
       const dl = document.createElement('div');
@@ -580,22 +610,29 @@ function renderDirectory() {
     const row = document.createElement('div');
     row.className = 'dir-row';
     row.id = 'dirrow-' + p.id;
+    if (showArchived) row.style.opacity = '0.6';
 
     const initials = getInitials(p.name);
     const deptOpts = DEPTS.map(d => `<option value="${d}" ${p.dept===d?'selected':''}>${d}</option>`).join('');
 
+    const actionBtn = showArchived
+      ? `<button class="del-btn" onclick="restorePerson(${p.id})" title="Restore to active"
+           style="font-size:10px;font-family:var(--font-mono);color:var(--success);border-color:rgba(90,171,122,0.3);white-space:nowrap;width:52px;">restore</button>`
+      : `<button class="del-btn" onclick="archivePerson(${p.id})" title="Archive person"
+           style="font-size:10px;font-family:var(--font-mono);white-space:nowrap;width:52px;">archive</button>`;
+
     row.innerHTML = `
       <div class="dir-avatar">${initials}</div>
-      <input class="dir-input" type="text" value="${p.name || ''}" placeholder="Name"
-        onblur="saveDirField(${p.id},'name',this.value)" oninput="updateAvatar(${p.id},this.value)">
-      <input class="dir-input muted" type="text" value="${p.role || ''}" placeholder="Role / Title"
-        onblur="saveDirField(${p.id},'role',this.value)">
-      <input class="dir-input email" type="email" value="${p.email || ''}" placeholder="email@—"
-        onblur="saveDirField(${p.id},'email',this.value)">
-      <input class="dir-input phone" type="tel" value="${p.phone || ''}" placeholder="+1 (000) 000-0000"
-        onblur="saveDirField(${p.id},'phone',this.value)">
-      <select class="dept-select" onchange="saveDirField(${p.id},'dept',this.value);scheduleRerender()">${deptOpts}</select>
-      <button class="del-btn" onclick="deletePerson(${p.id})" title="Remove">×</button>
+      <input class="dir-input" type="text" value="${(p.name||'').replace(/"/g,'&quot;')}" placeholder="Name"
+        ${showArchived?'disabled':''} onblur="saveDirField(${p.id},'name',this.value)" oninput="updateAvatar(${p.id},this.value)">
+      <input class="dir-input muted" type="text" value="${(p.role||'').replace(/"/g,'&quot;')}" placeholder="Role / Title"
+        ${showArchived?'disabled':''} onblur="saveDirField(${p.id},'role',this.value)">
+      <input class="dir-input email" type="email" value="${(p.email||'').replace(/"/g,'&quot;')}" placeholder="email@—"
+        ${showArchived?'disabled':''} onblur="saveDirField(${p.id},'email',this.value)">
+      <input class="dir-input phone" type="tel" value="${(p.phone||'').replace(/"/g,'&quot;')}" placeholder="+1 (000) 000-0000"
+        ${showArchived?'disabled':''} onblur="saveDirField(${p.id},'phone',this.value)">
+      <select class="dept-select" ${showArchived?'disabled':''} onchange="saveDirField(${p.id},'dept',this.value);scheduleRerender()">${deptOpts}</select>
+      ${actionBtn}
     `;
     body.appendChild(row);
   });
@@ -621,14 +658,25 @@ async function saveDirField(id, field, value) {
   await saveField('directory', id, field, value);
 }
 
-async function deletePerson(id) {
-  if (!confirm('Remove this person from the directory?')) return;
-  setSyncState('syncing', 'deleting...');
-  const { error } = await sb.from('directory').delete().eq('id', id);
-  if (error) { setSyncState('error', 'delete error'); console.error(error); return; }
-  directoryRows = directoryRows.filter(r => r.id !== id);
+async function archivePerson(id) {
+  const row = directoryRows.find(r => r.id === id);
+  if (!row) return;
+  row.active = false;
   renderDirectory();
-  setSyncState('live', 'live');
+  await saveField('directory', id, 'active', false);
+}
+
+async function restorePerson(id) {
+  const row = directoryRows.find(r => r.id === id);
+  if (!row) return;
+  row.active = true;
+  renderDirectory();
+  await saveField('directory', id, 'active', true);
+}
+
+function toggleArchivedView() {
+  showArchived = !showArchived;
+  renderDirectory();
 }
 
 function showAddPersonModal() {
@@ -655,7 +703,7 @@ async function submitAddPerson() {
 
   setSyncState('syncing', 'saving...');
   const { data, error } = await sb.from('directory').insert([{
-    sort_order: maxOrder + 1, dept, name, role, email, phone, tiers: 'Base,Mid,Max', notes: ''
+    sort_order: maxOrder + 1, dept, name, role, email, phone, tiers: 'Base,Mid,Max', notes: '', active: true
   }]).select();
 
   if (error) { setSyncState('error', 'save error'); console.error(error); return; }
@@ -666,7 +714,6 @@ async function submitAddPerson() {
   setSyncState('live', 'live');
 }
 
-// Close modal on backdrop click
 document.getElementById('add-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('add-modal')) hideAddPersonModal();
 });
