@@ -191,18 +191,86 @@ main{padding-top:56px}
 
 footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);font-size:10px;color:var(--dim);letter-spacing:0.06em;text-transform:uppercase}
 
+/* ── HAMBURGER NAV ─────────────────────────────────── */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;border:none;background:none;margin-left:auto}
+.hamburger span{display:block;width:20px;height:1.5px;background:var(--text);transition:all 0.2s}
+.mobile-nav-open .hamburger span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.mobile-nav-open .hamburger span:nth-child(2){opacity:0}
+.mobile-nav-open .hamburger span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mobile-menu{display:none;position:fixed;top:56px;left:0;right:0;background:rgba(10,10,10,0.98);border-bottom:0.5px solid var(--line2);z-index:99;flex-direction:column;padding:8px 16px 16px}
+.mobile-menu.open{display:flex}
+.mobile-menu .nav-link{font-size:13px;padding:12px 8px;border-bottom:0.5px solid var(--line);border-radius:0;text-align:left;width:100%}
+.mobile-menu .nav-link:last-child{border-bottom:none}
+
 @media(max-width:768px){
-  nav{padding:0 12px}
-  .nav-brand{font-size:16px;margin-right:12px}
-  .nav-link{font-size:9px;padding:4px 6px}
+  /* NAV */
+  nav{padding:0 16px;height:52px}
+  .nav-brand{font-size:18px;margin-right:0}
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .nav-right{gap:8px}
+  .nav-badge{display:none}
+  .sync-label{display:none}
+
+  /* LAYOUT */
+  main{padding-top:52px}
   .pane{padding:24px 16px}
-  .page-header{flex-direction:column;align-items:flex-start;gap:12px}
-  .page-header-left h1{font-size:40px}
-  .tiers-grid{grid-template-columns:1fr}
-  .actions-grid{grid-template-columns:1fr}
-  .gt-breakdown{flex-wrap:wrap;gap:12px}
+
+  /* PAGE HEADER */
+  .page-header{flex-direction:column;align-items:flex-start;gap:8px}
+  .page-header-left h1{font-size:32px;letter-spacing:0.01em}
+  .page-header-right{display:none}
+
+  /* TIERS */
+  .tiers-grid{grid-template-columns:1fr;gap:1px}
+
+  /* LABOR BUDGET TABLE - card reflow */
+  .budget-table thead{display:none}
+  .budget-table tbody .dept-row td{padding:14px 0 4px;font-size:10px}
+  .budget-table tbody tr.data-row{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;padding:10px 8px;border:0.5px solid var(--line);border-radius:6px;margin-bottom:6px;background:var(--bg2)}
+  .budget-table tbody tr.data-row td{border-bottom:none;padding:2px 0;text-align:left !important;padding-right:0 !important}
+  .budget-table tbody tr.data-row td:first-child{grid-column:1/-1;font-weight:500;color:var(--text);font-size:13px;padding-bottom:4px;border-bottom:0.5px solid var(--line);margin-bottom:4px}
+  .budget-table tbody tr.data-row td.total-cell{grid-column:1/-1;text-align:right !important;color:var(--accent2) !important;font-size:13px;padding-top:6px;border-top:0.5px solid var(--line);margin-top:2px}
+  .edit-input{width:100%;text-align:left}
+  .grand-total-bar{flex-direction:column;align-items:flex-start;gap:12px}
+  .gt-value{font-size:28px}
+  .gt-breakdown{gap:12px}
+  .gt-item-val{font-size:12px}
+
+  /* GEAR TABLE */
+  .budget-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* DIRECTORY */
+  .dir-row{grid-template-columns:32px 1fr 80px;gap:6px}
+  .dir-row > *:nth-child(3),.dir-row > *:nth-child(4),.dir-row > *:nth-child(5),.dir-row > *:nth-child(6){display:none}
+  .dir-row-header{grid-template-columns:32px 1fr 80px}
+  .dir-row-header > *:nth-child(3),.dir-row-header > *:nth-child(4),.dir-row-header > *:nth-child(5),.dir-row-header > *:nth-child(6){display:none}
+
+  /* TOUR DATES */
+  .dates-list-header{display:none}
+  .date-row{flex-wrap:wrap;gap:6px;padding:10px 8px}
+  .date-row-num{display:none}
+  .date-row-date{width:90px;font-size:11px}
+  .date-row-city{min-width:0;flex:1}
   .date-row-venue{display:none}
-  .date-row-leg,.date-row-tier{width:120px}
+  .date-row-leg{width:100%;order:3}
+  .date-row-tier{width:100%;order:4}
+  .row-select{font-size:12px}
+
+  /* DATES META */
+  .dates-meta{gap:16px}
+
+  /* FILTER BAR */
+  .dfilter{font-size:10px;padding:3px 8px}
+
+  /* ACTIONS */
+  .actions-grid{grid-template-columns:1fr}
+
+  /* TOTALS */
+  .gt-breakdown{flex-wrap:wrap;gap:12px}
+
+  /* TIMELINE */
+  .tl-date{min-width:80px;font-size:10px}
 }
 </style>
 </head>
@@ -229,8 +297,22 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
     <div class="sync-dot" id="sync-dot"></div>
     <div class="sync-label" id="sync-label">connecting</div>
     <div class="nav-badge">Tour start: <span style="color:var(--accent)">Aug 4, 2026</span></div>
+    <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- MOBILE MENU DRAWER -->
+<div class="mobile-menu" id="mobile-menu">
+  <button class="nav-link" onclick="showPaneMobile('directory')">Directory</button>
+  <button class="nav-link" onclick="showPaneMobile('tiers')">Configurations</button>
+  <button class="nav-link" onclick="showPaneMobile('labor')">Labor</button>
+  <button class="nav-link" onclick="showPaneMobile('gear')">Gear</button>
+  <button class="nav-link" onclick="showPaneMobile('dates')">Tour Dates</button>
+  <button class="nav-link" onclick="showPaneMobile('timeline')">Timeline</button>
+  <button class="nav-link" onclick="showPaneMobile('actions')">Actions</button>
+</div>
 
 <main>
 
@@ -250,7 +332,7 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
         <div style="width:6px;height:6px;border-radius:50%;background:var(--dim);" id="dir-archive-dot"></div>
         <button id="dir-toggle-archived" onclick="toggleArchivedView()"
           style="font-family:var(--font-mono);font-size:11px;background:none;border:none;cursor:pointer;color:var(--muted);letter-spacing:0.04em;padding:0;text-decoration:underline;text-underline-offset:3px;">
-          Archived
+          <span id="dir-toggle-label">Archived</span>
         </button>
         <span id="dir-archived-count" style="font-family:var(--font-mono);font-size:11px;color:var(--dim);">(0)</span>
       </div>
@@ -584,10 +666,9 @@ function renderDirectory() {
 
   // toggle button state
   const tb = document.getElementById('dir-toggle-archived');
-  if (tb) {
-    tb.textContent = showArchived ? '← Active roster' : 'Archived';
-    tb.style.color = showArchived ? 'var(--accent)' : 'var(--muted)';
-  }
+  const tl = document.getElementById('dir-toggle-label');
+  if (tb) tb.style.color = showArchived ? 'var(--accent)' : 'var(--muted)';
+  if (tl) tl.textContent = showArchived ? '← Active roster' : 'Archived';
   const dot = document.getElementById('dir-archive-dot');
   if (dot) dot.style.background = showArchived ? 'var(--accent2)' : 'var(--dim)';
 
@@ -1073,6 +1154,23 @@ function subscribeRealtime() {
       if (status === 'SUBSCRIBED') setSyncState('live', 'live');
       else if (status === 'CLOSED') setSyncState('error', 'disconnected');
     });
+}
+
+
+// ── MOBILE NAV ────────────────────────────────────────────────────────
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const btn = document.getElementById('hamburger-btn');
+  const isOpen = menu.classList.contains('open');
+  menu.classList.toggle('open', !isOpen);
+  document.body.classList.toggle('mobile-nav-open', !isOpen);
+}
+
+function showPaneMobile(name) {
+  showPane(name);
+  // close drawer
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.body.classList.remove('mobile-nav-open');
 }
 
 // ── NAV ───────────────────────────────────────────────────────────────
