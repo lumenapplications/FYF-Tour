@@ -214,7 +214,7 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
 
   /* LAYOUT */
   main{padding-top:52px}
-  .pane{padding:24px 16px}
+  .pane{padding:20px 16px}
 
   /* PAGE HEADER */
   .page-header{flex-direction:column;align-items:flex-start;gap:8px}
@@ -237,40 +237,55 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
   .gt-breakdown{gap:12px}
   .gt-item-val{font-size:12px}
 
-  /* GEAR TABLE */
+  /* GEAR TABLE - horizontal scroll */
   .budget-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
+  /* GEAR LIST - mobile card reflow */
+  .gear-list-header{display:none}
+  .gear-row{flex-wrap:wrap;gap:6px;padding:10px 8px;border:0.5px solid var(--line);border-radius:6px;margin-bottom:4px;background:var(--bg2)}
+  .gr-name{width:100% !important;flex:none !important;border-bottom:0.5px solid var(--line);padding-bottom:6px;margin-bottom:2px}
+  .gr-vendor{width:100% !important;flex:none !important}
+  .gr-rate{width:100% !important;flex:none !important}
+  .gear-row > div[style*="width:110px"],.gear-row > div[style*="width:90px"]{display:none !important}
+  .gear-row > div[style*="width:60px"]{display:none !important}
+  .gear-row > div[style*="width:120px"]{width:calc(50% - 4px) !important;flex:none !important}
+  .gear-row > div[style*="width:100px"]{width:calc(50% - 4px) !important;flex:none !important}
+  .gear-row > div[style*="width:28px"]{margin-left:auto}
+  .gear-cat-label{font-size:11px;padding:12px 0 6px}
+
   /* DIRECTORY */
-  .dir-row{grid-template-columns:32px 1fr 80px;gap:6px}
-  .dir-row > *:nth-child(3),.dir-row > *:nth-child(4),.dir-row > *:nth-child(5),.dir-row > *:nth-child(6){display:none}
-  .dir-row-header{grid-template-columns:32px 1fr 80px}
-  .dir-row-header > *:nth-child(3),.dir-row-header > *:nth-child(4),.dir-row-header > *:nth-child(5),.dir-row-header > *:nth-child(6){display:none}
+  .dir-row{grid-template-columns:32px 1fr 52px}
+  .dir-row > *:nth-child(3),.dir-row > *:nth-child(4),.dir-row > *:nth-child(5),.dir-row > *:nth-child(6),.dir-row > *:nth-child(7){display:none}
+  .dir-row-header{grid-template-columns:32px 1fr 52px}
+  .dir-row-header > *:nth-child(3),.dir-row-header > *:nth-child(4),.dir-row-header > *:nth-child(5),.dir-row-header > *:nth-child(6),.dir-row-header > *:nth-child(7){display:none}
 
-  /* TOUR DATES */
+  /* TOUR DATES - clean mobile rows */
   .dates-list-header{display:none}
-  .date-row{flex-wrap:wrap;gap:6px;padding:10px 8px}
+  .date-row{display:flex;flex-direction:column;gap:6px;padding:10px 8px;border-bottom:0.5px solid var(--line)}
   .date-row-num{display:none}
-  .date-row-date{width:90px;font-size:11px}
-  .date-row-city{min-width:0;flex:1}
-  .date-row-venue{display:none}
-  .date-row-leg{width:100%;order:3}
-  .date-row-tier{width:100%;order:4}
-  .row-select{font-size:12px}
+  .date-row-date{font-family:var(--font-mono);font-size:11px;color:var(--dim)}
+  .date-row-city{flex:none}
+  .date-row-city-name{font-size:14px;font-weight:500}
+  .date-row-venue{font-size:11px;color:var(--muted)}
+  .date-row-leg,.date-row-tier{width:100%}
+  .row-select{font-size:12px;padding:6px 10px;background:var(--bg3);border-radius:4px}
+  .dates-meta{gap:12px;flex-wrap:wrap}
+  .dfilter{font-size:10px;padding:4px 10px}
 
-  /* DATES META */
-  .dates-meta{gap:16px}
-
-  /* FILTER BAR */
-  .dfilter{font-size:10px;padding:3px 8px}
+  /* TIMELINE - mobile stack layout */
+  .tl-event-inner{display:flex;flex-direction:column;gap:6px;padding:10px 8px}
+  .tl-col-header{display:none}
+  .tl-event-card::before{left:-20px;top:12px}
+  .timeline{padding-left:20px}
+  .tl-controls{justify-content:flex-end;gap:6px}
+  .tl-edit-btn,.tl-del-btn,.tl-move-btn{width:28px;height:28px}
 
   /* ACTIONS */
   .actions-grid{grid-template-columns:1fr}
+  .action-detail-grid{grid-template-columns:1fr}
 
   /* TOTALS */
   .gt-breakdown{flex-wrap:wrap;gap:12px}
-
-  /* TIMELINE */
-  .tl-date{min-width:80px;font-size:10px}
 }
 .edit-input::-webkit-outer-spin-button,.edit-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .edit-input[type=number]{-moz-appearance:textfield}
@@ -1363,7 +1378,7 @@ function renderGear() {
     row.className = 'gear-row';
     row.id = 'drow-' + r.id;
     row.innerHTML = `
-      <div style="flex:2;min-width:0">
+      <div class="gr-name" style="flex:2;min-width:0">
         <input class="gear-input" type="text" value="${(r.item||'').replace(/"/g,'&quot;')}" placeholder="Line item"
           onblur="saveDesignField(${r.id},'item',this.value)">
       </div>
@@ -1423,15 +1438,15 @@ function renderGear() {
     row.className = 'gear-row';
     row.id = 'grow-' + r.id;
     row.innerHTML = `
-      <div style="flex:2;min-width:0">
+      <div class="gr-name" style="flex:2;min-width:0">
         <input class="gear-input" type="text" value="${(r.item||'').replace(/"/g,'&quot;')}" placeholder="Item name"
           onblur="saveGearField(${r.id},'item',this.value)">
       </div>
-      <div style="flex:1.5;min-width:0">
+      <div class="gr-vendor" style="flex:1.5;min-width:0">
         <input class="gear-input muted" type="text" value="${(r.vendor||'').replace(/"/g,'&quot;')}" placeholder="Vendor"
           onblur="saveGearField(${r.id},'vendor',this.value)">
       </div>
-      <div style="width:190px;flex-shrink:0;display:flex;align-items:center;gap:4px;">
+      <div class="gr-rate" style="width:190px;flex-shrink:0;display:flex;align-items:center;gap:4px;">
         <input class="gear-input mono" type="number" value="${parseFloat(r.rate_min)||parseFloat(r.rate)||0}" min="0" style="width:78px"
           placeholder="min" onblur="saveGearField(${r.id},'rate_min',this.value)">
         <span style="color:var(--dim);font-family:var(--font-mono);font-size:11px;flex-shrink:0">–</span>
