@@ -733,28 +733,48 @@ function flashRow(el) {
 // ── FETCH ALL DATA ────────────────────────────────────────────────────
 async function fetchAll() {
   setSyncState('syncing', 'loading...');
-  setLoadProgress(10, 'Fetching labor data...');
-  const [l, g, d, t, a, dir] = await Promise.all([
-    sb.from('labor_rows').select('*').order('sort_order'),
-    sb.from('gear_rows').select('*').order('sort_order'),
-    sb.from('design_rows').select('*').order('sort_order'),
-    sb.from('tour_dates').select('*').order('sort_order'),
-    sb.from('action_items').select('*').order('sort_order'),
-    sb.from('directory').select('*').order('sort_order'),
-  ]);
-  if (l.error || g.error || d.error || t.error || a.error || dir.error) {
+  setLoadProgress(10, 'Fetching data...');
+  try {
+    const [l, g, d, t, a, dir] = await Promise.all([
+      sb.from('labor_rows').select('*').order('sort_order'),
+      sb.from('gear_rows').select('*').order('sort_order'),
+      sb.from('design_rows').select('*').order('sort_order'),
+      sb.from('tour_dates').select('*').order('sort_order'),
+      sb.from('action_items').select('*').order('sort_order'),
+      sb.from('directory').select('*').order('sort_order'),
+    ]);
+
+    // log individual errors but don't block render
+    if (l.error) console.error('labor_rows:', l.error);
+    if (g.error) console.error('gear_rows:', g.error);
+    if (d.error) console.error('design_rows:', d.error);
+    if (t.error) console.error('tour_dates:', t.error);
+    if (a.error) console.error('action_items:', a.error);
+    if (dir.error) console.error('directory:', dir.error);
+
+    // use whatever loaded successfully, fall back to empty arrays
+    laborRows     = l.data  || [];
+    gearRows      = g.data  || [];
+    designRows    = d.data  || [];
+    tourDates     = t.data  || [];
+    actionItems   = a.data  || [];
+    directoryRows = dir.data || [];
+
+    // if everything failed, show error state
+    if (!l.data && !g.data && !d.data && !t.data && !a.data && !dir.data) {
+      setSyncState('error', 'load error');
+      setLoadProgress(100, 'Could not load data — check RLS settings in Supabase.');
+      return false;
+    }
+
+    setLoadProgress(80, 'Rendering...');
+    return true;
+  } catch(err) {
+    console.error('fetchAll error:', err);
     setSyncState('error', 'load error');
-    setLoadProgress(100, 'Error loading data. Check console.');
-    console.error(l.error, g.error, d.error, t.error, a.error, dir.error);
-    return;
+    setLoadProgress(100, 'Connection error: ' + err.message);
+    return false;
   }
-  laborRows     = l.data;
-  gearRows      = g.data;
-  designRows    = d.data;
-  tourDates     = t.data;
-  actionItems   = a.data;
-  directoryRows = dir.data;
-  setLoadProgress(80, 'Rendering...');
 }
 
 
@@ -1190,7 +1210,7 @@ function renderGear() {
       </div>
       <div style="width:100px;flex-shrink:0">
         <button class="status-toggle ${r.status === 'confirmed' ? 'confirmed' : 'open'}" id="dstatus-${r.id}"
-          onclick="toggleDesignStatus(${r.id})">${r.status === 'confirmed' ? 'confirmed' : 'open'}</button>
+          onclick="toggleDesignStatus(${r.id})">${r.status === 'confirmed' ? (r.confirmed_by ? '✓ ' + r.confirmed_by : 'confirmed') : 'open'}</button>
       </div>
       <div style="width:28px;flex-shrink:0">
         <button class="del-btn" onclick="deleteDesignRow(${r.id})" style="font-size:10px;font-family:var(--font-mono);width:28px;">×</button>
@@ -1253,7 +1273,7 @@ function renderGear() {
       </div>
       <div style="width:100px;flex-shrink:0">
         <button class="status-toggle ${r.status==='confirmed'?'confirmed':'open'}" id="gstatus-${r.id}"
-          onclick="toggleGearStatus(${r.id})">${r.status==='confirmed'?'confirmed':'open'}</button>
+          onclick="toggleGearStatus(${r.id})">${r.status==='confirmed' ? (r.confirmed_by ? '✓ ' + r.confirmed_by : 'confirmed') : 'open'}</button>
       </div>
       <div style="width:28px;flex-shrink:0">
         <button class="del-btn" onclick="deleteGearRow(${r.id})" style="font-size:10px;font-family:var(--font-mono);width:28px;">×</button>
@@ -1301,22 +1321,52 @@ async function saveDesignField(id, field, value) {
   await saveField('design_rows', id, field, row[field]);
 }
 
+function updateStatusBtn(btnId, status, confirmedBy) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.className = 'status-toggle ' + status;
+  btn.textContent = status === 'confirmed' && confirmedBy ? `✓ ${confirmedBy}` : status;
+}
+
 async function toggleGearStatus(id) {
   const row = gearRows.find(r => r.id === id);
   if (!row) return;
-  row.status = row.status === 'confirmed' ? 'open' : 'confirmed';
-  const btn = document.getElementById('gstatus-' + id);
-  if (btn) { btn.textContent = row.status; btn.className = 'status-toggle ' + row.status; }
-  await saveField('gear_rows', id, 'status', row.status);
+  if (row.status === 'confirmed') {
+    // unconfirm — no initials needed
+    row.status = 'open';
+    row.confirmed_by = '';
+    updateStatusBtn('gstatus-' + id, 'open', '');
+    await saveField('gear_rows', id, 'status', 'open');
+    await saveField('gear_rows', id, 'confirmed_by', '');
+  } else {
+    const initials = prompt('Confirmed by (initials):');
+    if (initials === null) return; // cancelled
+    row.status = 'confirmed';
+    row.confirmed_by = initials.trim().toUpperCase();
+    updateStatusBtn('gstatus-' + id, 'confirmed', row.confirmed_by);
+    await saveField('gear_rows', id, 'status', 'confirmed');
+    await saveField('gear_rows', id, 'confirmed_by', row.confirmed_by);
+  }
 }
 
 async function toggleDesignStatus(id) {
   const row = designRows.find(r => r.id === id);
   if (!row) return;
-  row.status = row.status === 'confirmed' ? 'open' : 'confirmed';
-  const btn = document.getElementById('dstatus-' + id);
-  if (btn) { btn.textContent = row.status; btn.className = 'status-toggle ' + row.status; }
-  await saveField('design_rows', id, 'status', row.status);
+  if (row.status === 'confirmed') {
+    row.status = 'open';
+    row.confirmed_by = '';
+    updateStatusBtn('dstatus-' + id, 'open', '');
+    await saveField('design_rows', id, 'status', 'open');
+    await saveField('design_rows', id, 'confirmed_by', '');
+  } else {
+    const initials = prompt('Confirmed by (initials):');
+    if (initials === null) return;
+    row.status = 'confirmed';
+    row.confirmed_by = initials.trim().toUpperCase();
+    updateStatusBtn('dstatus-' + id, 'confirmed', row.confirmed_by);
+    await saveField('design_rows', id, 'status', 'confirmed');
+    await saveField('design_rows', id, 'confirmed_by', row.confirmed_by);
+  }
 }
 
 async function deleteGearRow(id) {
@@ -1597,19 +1647,20 @@ function showPane(name) {
 
 // ── INIT ──────────────────────────────────────────────────────────────
 (async () => {
-  await fetchAll();
+  const ok = await fetchAll();
   setLoadProgress(90, 'Building interface...');
-  renderDirectory();
-  renderLabor();
-  renderGear();
-  renderDates();
-  renderActions();
+  try { renderDirectory(); } catch(e) { console.error('renderDirectory:', e); }
+  try { renderLabor(); } catch(e) { console.error('renderLabor:', e); }
+  try { renderGear(); } catch(e) { console.error('renderGear:', e); }
+  try { renderDates(); } catch(e) { console.error('renderDates:', e); }
+  try { renderActions(); } catch(e) { console.error('renderActions:', e); }
   subscribeRealtime();
-  setLoadProgress(100, 'Ready');
+  setLoadProgress(100, ok ? 'Ready' : 'Loaded with errors — check console');
   document.getElementById('footer-date').textContent = 'Fix Your Face Tour · Production Directory';
+  // always dismiss loading screen
   setTimeout(() => {
     document.getElementById('loading-screen').style.display = 'none';
-  }, 400);
+  }, 600);
 })();
 </script>
 </body>
