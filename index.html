@@ -2760,7 +2760,7 @@ async function submitInvite() {
   statusEl.style.color = 'var(--success)';
   statusEl.innerHTML = '✓ <strong>' + name + '</strong> added as <strong>' + role + '</strong>.<br>'
     + '<span style="color:var(--dim)">Share this link with them:</span><br>'
-    + '<span style="color:var(--accent2);font-family:var(--font-mono);font-size:10px;cursor:pointer;" onclick="navigator.clipboard.writeText('' + appUrl + '');this.textContent='Copied!'">'
+    + '<span style="color:var(--accent2);font-family:var(--font-mono);font-size:10px;cursor:pointer;" onclick="navigator.clipboard.writeText(\'' + appUrl + '\');this.textContent=\'Copied!\'">'
     + appUrl + ' (tap to copy)</span><br>'
     + '<span style="color:var(--dim);font-size:10px;">They sign up with <strong style="color:var(--text);">' + email + '</strong> and their role activates automatically.</span>';
 
