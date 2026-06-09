@@ -246,8 +246,9 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
   .gr-name{width:100% !important;flex:none !important;padding:10px 12px;border-bottom:0.5px solid var(--line)}
   .gr-vendor{width:100% !important;flex:none !important;padding:8px 12px;border-bottom:0.5px solid var(--line)}
   .gr-rate{width:100% !important;flex:none !important;padding:8px 12px;border-bottom:0.5px solid var(--line)}
-  .gr-status{width:auto !important;flex:1 !important;padding:8px 12px;display:flex;align-items:center}
-  .gr-del{width:auto !important;flex:none !important;padding:8px 12px;display:flex;align-items:center;justify-content:flex-end}
+  .gr-status{width:auto !important;flex:1 !important;padding:8px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+  .gr-del{width:auto !important;flex:none !important;padding:8px 12px;display:flex;align-items:flex-end;justify-content:flex-end}
+  .gr-status .gear-field-label{margin-bottom:0}
   .gear-row > div[style*="width:110px"],.gear-row > div[style*="width:90px"]{display:none !important}
   .gear-row > div[style*="width:60px"]{display:none !important}
   .gear-row > div[style*="width:120px"]{width:50% !important;flex:none !important;padding:8px 12px;border-bottom:0.5px solid var(--line)}
@@ -274,11 +275,12 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
   .dfilter{font-size:10px;padding:4px 10px}
 
   /* TIMELINE - mobile stack layout */
-  .tl-event-inner{display:flex;flex-direction:column;gap:6px;padding:10px 8px}
-  .tl-col-header{display:none}
-  .tl-event-card::before{left:-20px;top:12px}
+  .tl-col-header{display:none !important}
+  .tl-event-card::before{left:-20px;top:14px}
   .timeline{padding-left:20px}
-  .tl-controls{justify-content:flex-end;gap:6px}
+  .tl-event-inner{display:flex !important;flex-direction:column !important;gap:4px;padding:10px 8px}
+  .tl-event-inner > *{width:100% !important}
+  .tl-controls{justify-content:flex-end;gap:6px;margin-top:4px}
   .tl-edit-btn,.tl-del-btn,.tl-move-btn{width:28px;height:28px}
 
   /* ACTIONS */
@@ -2078,18 +2080,7 @@ function renderTimeline() {
   if (!body) return;
   body.innerHTML = '';
 
-  // column headers
-  const hdr = document.createElement('div');
-  hdr.style.cssText = 'display:grid;grid-template-columns:120px 1fr 140px 120px 80px 60px;gap:10px;padding:4px 12px 10px;margin-bottom:4px;border-bottom:0.5px solid var(--line2);';
-  hdr.innerHTML = `
-    <span class="tl-col-header">Date range</span>
-    <span class="tl-col-header">Title</span>
-    <span class="tl-col-header">Location</span>
-    <span class="tl-col-header">Config</span>
-    <span class="tl-col-header">Notes</span>
-    <span class="tl-col-header"></span>
-  `;
-  body.appendChild(hdr);
+  // column headers hidden — info is now inline per card
 
   timelineEvents.forEach((ev, idx) => {
     const card = document.createElement('div');
@@ -2107,19 +2098,22 @@ function renderTimeline() {
     const inner = document.createElement('div');
     inner.className = 'tl-event-inner' + (ev.milestone ? ' milestone-row' : '');
     inner.innerHTML = `
-      <span class="tl-field date" style="padding-top:3px;">${dateRange}</span>
-      <div>
-        <span class="tl-field title-field ${ev.milestone ? 'milestone-title' : ''}" style="display:block;">${ev.title}${flagHtml}</span>
-        ${ev.notes ? `<span style="font-size:11px;color:var(--muted);padding-left:4px;">${ev.notes}</span>` : ''}
-      </div>
-      <span class="tl-field mono" style="padding-top:3px;">${ev.location || '—'}</span>
-      <span style="padding-top:2px;">${configBadge(ev.config)}</span>
-      <span></span>
-      <div class="tl-controls">
-        <button class="tl-move-btn" onclick="moveEvent(${ev.id},-1)" title="Move up">▲</button>
-        <button class="tl-move-btn" onclick="moveEvent(${ev.id},1)" title="Move down">▼</button>
-        <button class="tl-edit-btn" onclick="editEvent(${ev.id})" title="Edit">✎</button>
-        <button class="tl-del-btn" onclick="deleteEvent(${ev.id})" title="Delete">×</button>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--dim);margin-bottom:4px;">${dateRange}</div>
+          <div class="${ev.milestone ? 'milestone-title' : ''}" style="font-size:${ev.milestone ? '15px' : '14px'};color:${ev.milestone ? 'var(--accent)' : 'var(--text)'};font-weight:400;line-height:1.3;">${ev.title}${flagHtml}</div>
+          ${ev.notes ? `<div style="font-size:11px;color:var(--muted);margin-top:3px;">${ev.notes}</div>` : ''}
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
+            ${ev.location ? `<span style="font-family:var(--font-mono);font-size:11px;color:var(--dim);">📍 ${ev.location}</span>` : ''}
+            ${configBadge(ev.config)}
+          </div>
+        </div>
+        <div class="tl-controls" style="flex-shrink:0;">
+          <button class="tl-move-btn" onclick="moveEvent(${ev.id},-1)" title="Move up">▲</button>
+          <button class="tl-move-btn" onclick="moveEvent(${ev.id},1)" title="Move down">▼</button>
+          <button class="tl-edit-btn" onclick="editEvent(${ev.id})" title="Edit">✎</button>
+          <button class="tl-del-btn" onclick="deleteEvent(${ev.id})" title="Delete">×</button>
+        </div>
       </div>
     `;
     card.appendChild(inner);
