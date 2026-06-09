@@ -397,6 +397,16 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
   .gear-field-label{display:block;}
 }
 
+
+/* MILES COLUMN */
+.date-row-miles{width:90px;flex-shrink:0;display:flex;align-items:center;gap:4px;}
+.miles-input{background:transparent;border:none;border-bottom:0.5px solid transparent;font-family:var(--font-mono);font-size:12px;width:52px;padding:2px 0;text-align:right;cursor:text;-moz-appearance:textfield;}
+.miles-input::-webkit-outer-spin-button,.miles-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.miles-input:hover{border-bottom-color:var(--line2);}
+.miles-input:focus{outline:none;border-bottom-color:var(--accent2);color:var(--text) !important;}
+.miles-unit{font-family:var(--font-mono);font-size:10px;color:var(--dim);}
+@media(max-width:768px){.date-row-miles{display:none;}}
+
 </style>
 </head>
 <body>
@@ -691,7 +701,7 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
     <div><div class="dates-meta-label">Tour kick-off</div><div class="dates-meta-val">Aug 4 · Dallas, TX</div></div>
     <div><div class="dates-meta-label">NA wrap</div><div class="dates-meta-val">Sep 16 · Los Angeles, CA</div></div>
     <div><div class="dates-meta-label">EU wrap</div><div class="dates-meta-val">Oct 18 · London, UK</div></div>
-    <div><div class="dates-meta-label">On sale</div><div class="dates-meta-val">Jun 12 · 10am local</div></div>
+    <div><div class="dates-meta-label">Total miles</div><div class="dates-meta-val" id="total-miles-display">—</div></div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
     <span style="font-family:var(--font-mono);font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:0.06em;">Filter:</span>
@@ -708,6 +718,7 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
     <span style="flex:1;">City / Venue</span>
     <span style="width:170px;">Leg</span>
     <span style="width:140px;">Band Tier</span>
+    <span style="width:90px;">Miles</span>
   </div>
   <div id="dates-list-body"></div>
   <div style="margin-top:24px;padding:12px 16px;border:0.5px solid var(--line);border-radius:6px;font-family:var(--font-mono);font-size:11px;color:var(--dim);">
@@ -1705,6 +1716,9 @@ function renderDates() {
       : d.leg==='EU Tour Date' ? 'rgba(90,171,122,0.4)' : '';
     const tierColor = d.tier==='Max' ? 'rgba(232,213,160,0.35)' : d.tier==='Mid' ? 'rgba(232,213,160,0.2)' : '';
 
+    const milesVal = d.miles || 0;
+    const milesColor = milesVal > 700 ? 'var(--warn)' : milesVal > 400 ? 'var(--accent2)' : milesVal > 0 ? 'var(--muted)' : 'var(--dim)';
+
     row.innerHTML = `
       <div class="date-row-num">${i+1}</div>
       <div class="date-row-date">${d.date}</div>
@@ -1720,6 +1734,12 @@ function renderDates() {
         <select class="row-select" style="border-color:${tierColor}"
           onchange="handleDateChange(${d.id},'tier',this.value,this)">${tierOpts}</select>
       </div>
+      <div class="date-row-miles">
+        <input type="number" class="miles-input" id="miles-${d.id}" value="${milesVal||''}"
+          placeholder="—" style="color:${milesColor}"
+          onblur="handleDateChange(${d.id},'miles',this.value,this)">
+        ${milesVal > 0 ? `<span class="miles-unit">mi</span>` : ''}
+      </div>
     `;
     body.appendChild(row);
   });
@@ -1730,7 +1750,7 @@ function renderDates() {
 async function handleDateChange(id, field, value, el) {
   const row = tourDates.find(d => d.id === id);
   if (!row) return;
-  row[field] = value;
+  row[field] = field === 'miles' ? (parseInt(value) || 0) : value;
   // update border color
   if (field === 'leg') {
     el.style.borderColor = value==='Rehearsal' ? 'rgba(90,143,224,0.4)'
@@ -1753,11 +1773,16 @@ function setDateFilter(filter) {
 }
 
 function applyDateFilter() {
+  let totalMiles = 0;
   tourDates.forEach(d => {
     const row = document.getElementById('tdrow-' + d.id);
     if (!row) return;
-    row.classList.toggle('hidden', activeDateFilter !== 'all' && d.leg !== activeDateFilter);
+    const visible = activeDateFilter === 'all' || d.leg === activeDateFilter;
+    row.classList.toggle('hidden', !visible);
+    if (visible && d.miles) totalMiles += parseInt(d.miles) || 0;
   });
+  const milesEl = document.getElementById('total-miles-display');
+  if (milesEl) milesEl.textContent = totalMiles > 0 ? totalMiles.toLocaleString() + ' mi' : '—';
 }
 
 // ── ACTIONS ───────────────────────────────────────────────────────────
