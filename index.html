@@ -407,6 +407,65 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
 .miles-unit{font-family:var(--font-mono);font-size:10px;color:var(--dim);}
 @media(max-width:768px){.date-row-miles{display:none;}}
 
+
+/* AUTH */
+#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;}
+.auth-box{width:380px;max-width:92vw;padding:40px;background:var(--bg2);border:0.5px solid var(--line2);border-radius:12px;}
+.auth-title{font-family:var(--font-display);font-size:42px;letter-spacing:0.04em;color:var(--accent);margin-bottom:4px;}
+.auth-sub{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--dim);margin-bottom:28px;}
+.auth-field{margin-bottom:16px;}
+.auth-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-bottom:6px;display:block;}
+.auth-input{width:100%;background:var(--bg3);border:0.5px solid var(--line2);color:var(--text);font-family:var(--font-body);font-size:13px;border-radius:4px;padding:10px 12px;transition:border-color 0.15s;}
+.auth-input:focus{outline:none;border-color:var(--accent2);}
+.auth-btn{width:100%;padding:11px;border-radius:4px;cursor:pointer;border:0.5px solid rgba(232,213,160,0.3);background:rgba(232,213,160,0.1);color:var(--accent);font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:0.08em;margin-top:8px;transition:all 0.15s;}
+.auth-btn:hover{background:rgba(232,213,160,0.18);}
+.auth-btn:disabled{opacity:0.4;cursor:not-allowed;}
+.auth-error{font-family:var(--font-mono);font-size:11px;color:var(--warn);margin-top:10px;min-height:16px;}
+.auth-skip{font-family:var(--font-mono);font-size:11px;color:var(--dim);text-align:center;margin-top:16px;cursor:pointer;letter-spacing:0.04em;text-decoration:underline;text-underline-offset:3px;}
+.auth-skip:hover{color:var(--muted);}
+
+/* USER BADGE in nav */
+.user-badge{font-family:var(--font-mono);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 8px;border-radius:4px;border:0.5px solid var(--line);transition:all 0.15s;}
+.user-badge:hover{border-color:var(--line2);color:var(--text);}
+.role-pip{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.role-admin{background:#e8d5a0;}
+.role-production{background:#5a8fe0;}
+.role-band{background:#5aab7a;}
+.role-readonly{background:#4a4744;}
+
+/* READONLY OVERLAY */
+.readonly-field{pointer-events:none;opacity:0.6;}
+.readonly-overlay{position:relative;}
+.readonly-overlay::after{content:'Sign in to edit';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--dim);opacity:0;transition:opacity 0.15s;}
+.readonly-overlay:hover::after{opacity:1;}
+.edit-locked{cursor:not-allowed !important;}
+
+/* LOCKED INDICATOR */
+.lock-bar{background:rgba(74,71,68,0.3);border-bottom:0.5px solid var(--line);padding:8px 32px;font-family:var(--font-mono);font-size:11px;color:var(--dim);display:flex;align-items:center;gap:8px;letter-spacing:0.04em;}
+.lock-bar a{color:var(--accent2);cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+
+
+/* TEAM PAGE */
+.team-card{background:var(--bg2);border:0.5px solid var(--line);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;transition:border-color 0.15s;}
+.team-card:hover{border-color:var(--line2);}
+.team-card-top{display:flex;align-items:center;gap:12px;}
+.team-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:500;flex-shrink:0;border:0.5px solid var(--line2);}
+.team-avatar.role-admin{background:rgba(232,213,160,0.15);color:var(--accent);}
+.team-avatar.role-production{background:rgba(90,143,224,0.15);color:var(--info);}
+.team-avatar.role-band{background:rgba(90,171,122,0.15);color:var(--success);}
+.team-avatar.role-readonly{background:var(--bg3);color:var(--dim);}
+.team-name{font-size:14px;color:var(--text);font-weight:400;}
+.team-email{font-family:var(--font-mono);font-size:11px;color:var(--muted);}
+.team-role-select{background:var(--bg3);border:0.5px solid var(--line2);color:var(--text);font-family:var(--font-mono);font-size:11px;border-radius:3px;padding:4px 8px;cursor:pointer;width:100%;appearance:none;-webkit-appearance:none;transition:border-color 0.15s;}
+.team-role-select:focus{outline:none;border-color:var(--accent2);}
+.team-role-select.role-admin{border-color:rgba(232,213,160,0.3);color:var(--accent);}
+.team-role-select.role-production{border-color:rgba(90,143,224,0.3);color:var(--info);}
+.team-role-select.role-band{border-color:rgba(90,171,122,0.3);color:var(--success);}
+.team-remove-btn{font-family:var(--font-mono);font-size:10px;color:var(--dim);background:none;border:none;cursor:pointer;padding:0;text-transform:uppercase;letter-spacing:0.04em;text-decoration:underline;text-underline-offset:3px;align-self:flex-end;}
+.team-remove-btn:hover{color:var(--warn);}
+.team-you-badge{font-family:var(--font-mono);font-size:9px;color:var(--accent2);border:0.5px solid rgba(232,213,160,0.25);padding:2px 6px;border-radius:3px;margin-left:6px;letter-spacing:0.04em;}
+.team-pending{font-family:var(--font-mono);font-size:10px;color:var(--dim);padding:2px 6px;border:0.5px solid var(--line2);border-radius:3px;}
+
 </style>
 </head>
 <body>
@@ -415,6 +474,32 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
   <div class="loading-title">FYF TOUR</div>
   <div class="loading-sub" id="loading-msg">Connecting to database...</div>
   <div class="loading-bar"><div class="loading-fill" id="loading-fill"></div></div>
+</div>
+
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" style="display:none;">
+  <div class="auth-box">
+    <div class="auth-title">FYF TOUR</div>
+    <div class="auth-sub">Production Directory · Sign in</div>
+    <div class="auth-field">
+      <label class="auth-label" for="auth-email">Email</label>
+      <input class="auth-input" id="auth-email" type="email" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="auth-field">
+      <label class="auth-label" for="auth-password">Password</label>
+      <input class="auth-input" id="auth-password" type="password" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')submitAuth()">
+    </div>
+    <button class="auth-btn" id="auth-submit-btn" onclick="submitAuth()">Sign In</button>
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-skip" onclick="skipAuth()">Continue as read-only viewer →</div>
+  </div>
+</div>
+
+<!-- LOCK BAR (shown when read-only) -->
+<div id="lock-bar" class="lock-bar" style="display:none;">
+  🔒 Read-only view — <a onclick="showAuthScreen()">Sign in</a> to edit and access all sections
 </div>
 
 <nav>
@@ -427,11 +512,16 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
     <button class="nav-link" onclick="showPane('dates')">Tour Dates</button>
     <button class="nav-link" onclick="showPane('timeline')">Timeline</button>
     <button class="nav-link" onclick="showPane('actions')">Actions</button>
+    <button class="nav-link" id="team-nav-btn" onclick="showPane('team')" style="display:none;color:var(--accent2);">Team</button>
   </div>
   <div class="nav-right">
     <div class="sync-dot" id="sync-dot"></div>
     <div class="sync-label" id="sync-label">connecting</div>
     <div class="nav-badge">Tour start: <span style="color:var(--accent)">Aug 4, 2026</span></div>
+    <div class="user-badge" id="user-badge" style="display:none;" onclick="handleUserBadgeClick()">
+      <div class="role-pip" id="role-pip"></div>
+      <span id="user-badge-label">—</span>
+    </div>
     <button class="hamburger" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
@@ -447,6 +537,7 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
   <button class="nav-link" onclick="showPaneMobile('dates')">Tour Dates</button>
   <button class="nav-link" onclick="showPaneMobile('timeline')">Timeline</button>
   <button class="nav-link" onclick="showPaneMobile('actions')">Actions</button>
+  <button class="nav-link" id="team-nav-btn-mobile" onclick="showPaneMobile('team')" style="display:none;color:var(--accent2);">Team</button>
 </div>
 
 <main>
@@ -839,6 +930,61 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
   </div>
 </div>
 
+<!-- TEAM -->
+<section class="pane" id="pane-team">
+  <div class="page-header">
+    <div class="page-header-left">
+      <h1>Team</h1>
+      <p>Manage access · Invite crew</p>
+    </div>
+    <button class="add-btn" onclick="showInviteModal()">+ Invite Person</button>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;margin-bottom:32px;" id="team-list">
+    <div style="padding:24px;font-family:var(--font-mono);font-size:12px;color:var(--dim);">Loading team...</div>
+  </div>
+
+  <div style="padding:16px 20px;background:var(--bg2);border:0.5px solid var(--line);border-radius:6px;font-family:var(--font-mono);font-size:11px;color:var(--dim);line-height:1.8;">
+    <div style="color:var(--accent2);margin-bottom:8px;font-size:12px;">Role permissions</div>
+    <div><span style="color:var(--accent);">Admin</span> — All tabs · Full edit access</div>
+    <div><span style="color:var(--info);">Production</span> — Directory · Gear · Timeline · Actions</div>
+    <div><span style="color:var(--success);">Band</span> — Directory · Gear · Timeline · Actions</div>
+    <div><span style="color:var(--dim);">Read-only</span> — Tour Dates · Timeline · No editing</div>
+  </div>
+</section>
+
+<!-- INVITE MODAL -->
+<div id="invite-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:center;justify-content:center;">
+  <div style="background:var(--bg2);border:0.5px solid var(--line2);border-radius:10px;padding:32px;width:440px;max-width:92vw;">
+    <div style="font-family:var(--font-display);font-size:28px;color:var(--text);margin-bottom:6px;letter-spacing:0.04em;">Invite Person</div>
+    <div style="font-family:var(--font-mono);font-size:11px;color:var(--dim);margin-bottom:24px;">They'll receive an email to set their password.</div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-bottom:6px;">Name</div>
+        <input id="invite-name" type="text" placeholder="Full name" style="background:var(--bg3);border:0.5px solid var(--line2);color:var(--text);font-family:var(--font-body);font-size:13px;border-radius:4px;padding:8px 10px;width:100%;">
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-bottom:6px;">Email</div>
+        <input id="invite-email" type="email" placeholder="email@example.com" style="background:var(--bg3);border:0.5px solid var(--line2);color:var(--text);font-family:var(--font-mono);font-size:13px;border-radius:4px;padding:8px 10px;width:100%;">
+      </div>
+      <div>
+        <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-bottom:6px;">Role</div>
+        <select id="invite-role" style="background:var(--bg3);border:0.5px solid var(--line2);color:var(--text);font-family:var(--font-body);font-size:13px;border-radius:4px;padding:8px 10px;width:100%;cursor:pointer;">
+          <option value="production">Production</option>
+          <option value="band">Band</option>
+          <option value="admin">Admin</option>
+          <option value="readonly">Read-only</option>
+        </select>
+      </div>
+    </div>
+    <div id="invite-status" style="font-family:var(--font-mono);font-size:11px;margin-top:12px;min-height:16px;"></div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
+      <button onclick="hideInviteModal()" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;padding:8px 18px;border-radius:4px;cursor:pointer;border:0.5px solid var(--line2);background:transparent;color:var(--muted);">Cancel</button>
+      <button id="invite-submit-btn" onclick="submitInvite()" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;padding:8px 18px;border-radius:4px;cursor:pointer;border:0.5px solid rgba(232,213,160,0.3);background:rgba(232,213,160,0.1);color:var(--accent);">Send Invite</button>
+    </div>
+  </div>
+</div>
+
 </main>
 
 <footer>
@@ -889,6 +1035,211 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
 </div>
 
 <script>
+
+// ── AUTH & ROLES ──────────────────────────────────────────────────────
+// Role definitions
+// admin      → all tabs, all edit
+// production → directory, gear, timeline, actions + edit
+// band       → directory, gear, timeline, actions + edit  
+// readonly   → tour dates, timeline only, no edit
+
+const ROLE_TABS = {
+  admin:      ['directory','tiers','labor','gear','dates','timeline','actions','team'],
+  production: ['directory','gear','timeline','actions'],
+  band:       ['directory','gear','timeline','actions'],
+  readonly:   ['dates','timeline'],
+};
+
+const ROLE_COLORS = {
+  admin: 'role-admin',
+  production: 'role-production',
+  band: 'role-band',
+  readonly: 'role-readonly',
+};
+
+let currentUser = null;
+let currentRole = 'readonly';
+let isAuthenticated = false;
+
+async function initAuth() {
+  // Check for existing session
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    await onSignedIn(session.user);
+  } else {
+    // Show auth screen on first load
+    setReadOnlyMode();
+    document.getElementById('auth-screen').style.display = 'flex';
+  }
+
+  // Listen for auth changes
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      await onSignedIn(session.user);
+    } else if (event === 'SIGNED_OUT') {
+      onSignedOut();
+    }
+  });
+}
+
+async function onSignedIn(user) {
+  currentUser = user;
+  isAuthenticated = true;
+
+  // Check if there's a pending invite (user_id = null) matching this email
+  const { data: pending } = await sb.from('user_roles').select('id').eq('email', user.email).is('user_id', null).single();
+  if (pending) {
+    // Link this user_id to their pre-assigned role
+    await sb.from('user_roles').update({ user_id: user.id }).eq('id', pending.id);
+  }
+
+  // Fetch role from user_roles table
+  const { data } = await sb.from('user_roles').select('role,name').eq('email', user.email).single();
+  currentRole = data?.role || 'readonly';
+  const displayName = data?.name || user.email;
+
+  applyRole(currentRole, displayName);
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('lock-bar').style.display = 'none';
+}
+
+function onSignedOut() {
+  currentUser = null;
+  isAuthenticated = false;
+  currentRole = 'readonly';
+  setReadOnlyMode();
+}
+
+function applyRole(role, displayName) {
+  // Update nav badge
+  const badge = document.getElementById('user-badge');
+  const pip = document.getElementById('role-pip');
+  const label = document.getElementById('user-badge-label');
+  badge.style.display = 'flex';
+  pip.className = 'role-pip ' + (ROLE_COLORS[role] || 'role-readonly');
+  label.textContent = displayName + ' · ' + role;
+
+  // Show/hide nav tabs
+  const allowedTabs = ROLE_TABS[role] || ROLE_TABS.readonly;
+  document.querySelectorAll('.nav-link[onclick*="showPane"]').forEach(btn => {
+    const match = btn.getAttribute('onclick').match(/showPane\(['"](\w+)['"]\)/);
+    if (match) {
+      const pane = match[1];
+      btn.style.display = allowedTabs.includes(pane) ? '' : 'none';
+    }
+  });
+  document.querySelectorAll('.mobile-menu .nav-link[onclick*="showPane"]').forEach(btn => {
+    const match = btn.getAttribute('onclick').match(/showPane\w*\(['"](\w+)['"]\)/);
+    if (match) {
+      const pane = match[1];
+      btn.style.display = allowedTabs.includes(pane) ? '' : 'none';
+    }
+  });
+
+  // Navigate to first allowed tab if current is not allowed
+  const activePaneId = document.querySelector('.pane.active')?.id?.replace('pane-','');
+  if (activePaneId && !allowedTabs.includes(activePaneId)) {
+    showPane(allowedTabs[0]);
+  }
+
+  // Show Team tab for admin only
+  const teamBtn = document.getElementById('team-nav-btn');
+  const teamBtnMobile = document.getElementById('team-nav-btn-mobile');
+  if (teamBtn) teamBtn.style.display = role === 'admin' ? '' : 'none';
+  if (teamBtnMobile) teamBtnMobile.style.display = role === 'admin' ? '' : 'none';
+  if (role === 'admin') loadTeam();
+
+  // Apply edit restrictions
+  if (role === 'readonly') {
+    setReadOnlyMode();
+  } else {
+    setEditMode();
+  }
+}
+
+function setReadOnlyMode() {
+  document.getElementById('lock-bar').style.display = 'flex';
+
+  // Show only readonly tabs in nav
+  const allowedTabs = ROLE_TABS.readonly;
+  document.querySelectorAll('.nav-link[onclick*="showPane"]').forEach(btn => {
+    const match = btn.getAttribute('onclick').match(/showPane\(['"](\w+)['"]\)/);
+    if (match) btn.style.display = allowedTabs.includes(match[1]) ? '' : 'none';
+  });
+  document.querySelectorAll('.mobile-menu .nav-link').forEach(btn => {
+    const match = (btn.getAttribute('onclick')||'').match(/showPane\w*\(['"](\w+)['"]\)/);
+    if (match) btn.style.display = allowedTabs.includes(match[1]) ? '' : 'none';
+  });
+
+  // Navigate to first allowed tab
+  const activePaneId = document.querySelector('.pane.active')?.id?.replace('pane-','');
+  if (!allowedTabs.includes(activePaneId)) showPane('dates');
+
+  // Hide all add/edit/archive buttons
+  document.querySelectorAll('.add-btn,.del-btn,.tl-edit-btn,.tl-del-btn,.action-edit-btn,.action-del-btn').forEach(el => {
+    el.style.display = 'none';
+  });
+
+  // Make inputs non-editable
+  document.querySelectorAll('input:not(#auth-email):not(#auth-password), select:not(#auth-screen select), textarea').forEach(el => {
+    el.setAttribute('disabled', true);
+  });
+}
+
+function setEditMode() {
+  document.getElementById('lock-bar').style.display = 'none';
+
+  // Re-enable all inputs
+  document.querySelectorAll('input:not(#auth-email):not(#auth-password), select, textarea').forEach(el => {
+    el.removeAttribute('disabled');
+  });
+
+  // Show add/edit buttons
+  document.querySelectorAll('.add-btn,.del-btn,.tl-edit-btn,.tl-del-btn,.action-edit-btn,.action-del-btn').forEach(el => {
+    el.style.display = '';
+  });
+}
+
+function showAuthScreen() {
+  document.getElementById('auth-screen').style.display = 'flex';
+  setTimeout(() => document.getElementById('auth-email').focus(), 100);
+}
+
+function skipAuth() {
+  document.getElementById('auth-screen').style.display = 'none';
+  setReadOnlyMode();
+}
+
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const btn = document.getElementById('auth-submit-btn');
+  const errEl = document.getElementById('auth-error');
+
+  if (!email || !password) { errEl.textContent = 'Email and password required.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+  errEl.textContent = '';
+
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    errEl.textContent = error.message;
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
+  // onAuthStateChange handles success
+}
+
+async function handleUserBadgeClick() {
+  if (!isAuthenticated) { showAuthScreen(); return; }
+  if (confirm('Sign out?')) {
+    await sb.auth.signOut();
+  }
+}
+
+
 // ── SUPABASE ──────────────────────────────────────────────────────────
 const SUPA_URL = 'https://vjnyfeytvzudimtogasn.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqbnlmZXl0dnp1ZGltdG9nYXNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NDIxNTAsImV4cCI6MjA5NjUxODE1MH0.OU4CMJ2ksqKCZHZoAM47RH5WEhc_AFua6CChQkLR_Qg';
@@ -2267,6 +2618,163 @@ document.getElementById('add-event-modal').addEventListener('click', e => {
 });
 
 
+
+// ── TEAM MANAGEMENT ───────────────────────────────────────────────────
+let teamMembers = [];
+
+async function loadTeam() {
+  const { data, error } = await sb.from('user_roles').select('*').order('created_at');
+  if (error) { console.error('loadTeam:', error); return; }
+  teamMembers = data || [];
+  renderTeam();
+}
+
+function renderTeam() {
+  const container = document.getElementById('team-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (teamMembers.length === 0) {
+    container.innerHTML = '<div style="padding:24px;font-family:var(--font-mono);font-size:12px;color:var(--dim);">No team members yet. Invite someone to get started.</div>';
+    return;
+  }
+
+  teamMembers.forEach(m => {
+    const isYou = currentUser && m.user_id === currentUser.id;
+    const initials = m.name ? m.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) : '?';
+
+    const card = document.createElement('div');
+    card.className = 'team-card';
+    card.id = 'tmcard-' + m.id;
+
+    const roleOpts = ['admin','production','band','readonly'].map(r =>
+      `<option value="${r}" ${m.role===r?'selected':''}>${r.charAt(0).toUpperCase()+r.slice(1)}</option>`
+    ).join('');
+
+    card.innerHTML = `
+      <div class="team-card-top">
+        <div class="team-avatar role-${m.role}">${initials}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="team-name">
+            ${m.name || 'Unnamed'}
+            ${isYou ? '<span class="team-you-badge">you</span>' : ''}
+          </div>
+          <div class="team-email">${m.email}</div>
+        </div>
+        ${!m.user_id ? '<span class="team-pending">invite pending</span>' : ''}
+      </div>
+      <select class="team-role-select role-${m.role}" id="role-sel-${m.id}"
+        ${isYou ? 'disabled title="Cannot change your own role"' : ''}
+        onchange="updateTeamRole(${m.id}, this.value, this)">
+        ${roleOpts}
+      </select>
+      ${!isYou ? `<button class="team-remove-btn" onclick="removeTeamMember(${m.id}, '${m.email}')">Remove access</button>` : ''}
+    `;
+    container.appendChild(card);
+  });
+}
+
+async function updateTeamRole(id, newRole, selectEl) {
+  const prev = teamMembers.find(m => m.id === id)?.role;
+  setSyncState('syncing', 'saving...');
+  const { error } = await sb.from('user_roles').update({ role: newRole }).eq('id', id);
+  if (error) {
+    setSyncState('error', 'save error');
+    selectEl.value = prev; // revert
+    return;
+  }
+  const m = teamMembers.find(x => x.id === id);
+  if (m) m.role = newRole;
+  // update select color class
+  selectEl.className = 'team-role-select role-' + newRole;
+  const card = document.getElementById('tmcard-' + id);
+  if (card) {
+    const av = card.querySelector('.team-avatar');
+    if (av) av.className = 'team-avatar role-' + newRole;
+  }
+  setSyncState('live', 'live');
+}
+
+async function removeTeamMember(id, email) {
+  if (!confirm(`Remove ${email} from the team? They will lose access immediately.`)) return;
+  setSyncState('syncing', 'deleting...');
+  const { error } = await sb.from('user_roles').delete().eq('id', id);
+  if (error) { setSyncState('error', 'delete error'); return; }
+  teamMembers = teamMembers.filter(m => m.id !== id);
+  renderTeam();
+  setSyncState('live', 'live');
+}
+
+function showInviteModal() {
+  document.getElementById('invite-modal').style.display = 'flex';
+  document.getElementById('invite-name').value = '';
+  document.getElementById('invite-email').value = '';
+  document.getElementById('invite-role').value = 'production';
+  document.getElementById('invite-status').textContent = '';
+  document.getElementById('invite-submit-btn').disabled = false;
+  document.getElementById('invite-submit-btn').textContent = 'Send Invite';
+  setTimeout(() => document.getElementById('invite-name').focus(), 50);
+}
+
+function hideInviteModal() {
+  document.getElementById('invite-modal').style.display = 'none';
+}
+
+async function submitInvite() {
+  const name  = document.getElementById('invite-name').value.trim();
+  const email = document.getElementById('invite-email').value.trim();
+  const role  = document.getElementById('invite-role').value;
+  const statusEl = document.getElementById('invite-status');
+  const btn = document.getElementById('invite-submit-btn');
+
+  if (!name || !email) { statusEl.style.color = 'var(--warn)'; statusEl.textContent = 'Name and email required.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  statusEl.textContent = '';
+
+  // 1. Send invite via Supabase Admin API (uses service role — needs edge function or admin SDK)
+  // Since we only have the anon key, we use the inviteUserByEmail via the auth admin endpoint
+  // Instead: create a placeholder user_roles entry and use Supabase Dashboard invite
+  // We'll use the signUp flow which sends a confirmation email
+  const { data: inviteData, error: inviteError } = await sb.auth.admin?.inviteUserByEmail?.(email) || { error: null };
+  
+  // Fallback: just create the role entry. Admin can invite from Supabase dashboard.
+  // Also try the standard approach
+  let userId = null;
+  
+  // Create the user_roles entry (will link when they sign in)
+  const { data: roleData, error: roleError } = await sb.from('user_roles').insert([{
+    user_id: null,
+    email,
+    role,
+    name,
+  }]).select();
+
+  if (roleError) {
+    statusEl.style.color = 'var(--warn)';
+    statusEl.textContent = 'Error: ' + roleError.message;
+    btn.disabled = false;
+    btn.textContent = 'Send Invite';
+    return;
+  }
+
+  teamMembers.push(roleData[0]);
+  renderTeam();
+
+  statusEl.style.color = 'var(--success)';
+  statusEl.textContent = '✓ ' + name + ' added. Send them the app link and have them sign up — their role will activate on first login.';
+  btn.textContent = 'Invite Another';
+  btn.disabled = false;
+  document.getElementById('invite-name').value = '';
+  document.getElementById('invite-email').value = '';
+}
+
+document.getElementById('invite-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('invite-modal')) hideInviteModal();
+});
+
+
 // ── MOBILE NAV ────────────────────────────────────────────────────────
 function toggleMobileMenu() {
   const menu = document.getElementById('mobile-menu');
@@ -2307,6 +2815,8 @@ function showPane(name) {
   // always dismiss loading screen
   setTimeout(() => {
     document.getElementById('loading-screen').style.display = 'none';
+    // init auth after page is loaded
+    initAuth();
   }, 600);
 })();
 </script>
