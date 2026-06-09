@@ -467,6 +467,28 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
 .team-you-badge{font-family:var(--font-mono);font-size:9px;color:var(--accent2);border:0.5px solid rgba(232,213,160,0.25);padding:2px 6px;border-radius:3px;margin-left:6px;letter-spacing:0.04em;}
 .team-pending{font-family:var(--font-mono);font-size:10px;color:var(--dim);padding:2px 6px;border:0.5px solid var(--line2);border-radius:3px;}
 
+
+/* DIRECTORY MOBILE EXPAND */
+.dir-row-detail{display:none;padding:8px 10px 12px 52px;border-top:0.5px solid var(--line);background:var(--bg3);}
+.dir-row.mob-expanded .dir-row-detail{display:block;}
+.dir-detail-field{margin-bottom:8px;}
+.dir-detail-label{font-family:var(--font-mono);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--dim);margin-bottom:3px;}
+.dir-detail-value{font-size:13px;color:var(--text);}
+.dir-detail-value.mono{font-family:var(--font-mono);font-size:12px;color:var(--info);}
+.dir-detail-value.muted{color:var(--muted);font-size:12px;}
+.dir-expand-arrow{font-size:10px;color:var(--dim);margin-left:auto;transition:transform 0.2s;flex-shrink:0;}
+.dir-row.mob-expanded .dir-expand-arrow{transform:rotate(180deg);}
+@media(max-width:768px){
+  .dir-row{cursor:pointer;}
+  .dir-expand-arrow{display:flex;}
+  .dir-row-detail{display:none;}
+  .dir-row.mob-expanded .dir-row-detail{display:block;}
+}
+@media(min-width:769px){
+  .dir-expand-arrow{display:none !important;}
+  .dir-row-detail{display:none !important;}
+}
+
 </style>
 </head>
 <body>
@@ -539,6 +561,9 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
   <button class="nav-link" onclick="showPaneMobile('timeline')">Timeline</button>
   <button class="nav-link" onclick="showPaneMobile('actions')">Actions</button>
   <button class="nav-link" id="team-nav-btn-mobile" onclick="showPaneMobile('team')" style="display:none;color:var(--accent2);">Team</button>
+  <div style="height:0.5px;background:var(--line);margin:8px 0;"></div>
+  <button class="nav-link" id="mobile-signin-btn" onclick="mobilSignInOut()" style="color:var(--accent2);letter-spacing:0.06em;">Sign In</button>
+  <div id="mobile-user-info" style="display:none;padding:10px 8px;font-family:var(--font-mono);font-size:11px;color:var(--dim);"></div>
 </div>
 
 <main>
@@ -1109,6 +1134,7 @@ function onSignedOut() {
   isAuthenticated = false;
   currentRole = 'readonly';
   setReadOnlyMode();
+  updateMobileAuthUI();
 }
 
 function applyRole(role, displayName) {
@@ -1142,6 +1168,8 @@ function applyRole(role, displayName) {
   if (activePaneId && !allowedTabs.includes(activePaneId)) {
     showPane(allowedTabs[0]);
   }
+
+  updateMobileAuthUI();
 
   // Show Team tab for admin only
   const teamBtn = document.getElementById('team-nav-btn');
@@ -1403,7 +1431,27 @@ function renderDirectory() {
       ${legsHtml}
       <select class="dept-select" ${showArchived?'disabled':''} onchange="saveDirField(${p.id},'dept',this.value);scheduleRerender()">${deptOpts}</select>
       ${actionBtn}
+      <span class="dir-expand-arrow">▼</span>
     `;
+
+    // Mobile expand detail panel (hidden on desktop via CSS)
+    const detail = document.createElement('div');
+    detail.className = 'dir-row-detail';
+    detail.innerHTML = `
+      ${p.role ? `<div class="dir-detail-field"><div class="dir-detail-label">Role</div><div class="dir-detail-value muted">${p.role}</div></div>` : ''}
+      ${p.email ? `<div class="dir-detail-field"><div class="dir-detail-label">Email</div><a class="dir-detail-value mono" href="mailto:${p.email}">${p.email}</a></div>` : ''}
+      ${p.phone ? `<div class="dir-detail-field"><div class="dir-detail-label">Phone</div><a class="dir-detail-value mono" href="tel:${p.phone}">${p.phone}</a></div>` : ''}
+      <div class="dir-detail-field"><div class="dir-detail-label">Legs</div><div class="dir-detail-value muted">${legsToDisplay(p.legs||'R,NA,EU')}</div></div>
+      <div class="dir-detail-field"><div class="dir-detail-label">Dept</div><div class="dir-detail-value muted">${p.dept}</div></div>
+    `;
+    row.appendChild(detail);
+
+    // Toggle expand on mobile tap (only fires if not clicking an input)
+    row.addEventListener('click', e => {
+      if (window.innerWidth > 768) return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
+      row.classList.toggle('mob-expanded');
+    });
     body.appendChild(row);
   });
 }
@@ -2774,6 +2822,37 @@ document.getElementById('invite-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('invite-modal')) hideInviteModal();
 });
 
+
+
+function mobilSignInOut() {
+  if (isAuthenticated) {
+    if (confirm('Sign out?')) {
+      sb.auth.signOut();
+      toggleMobileMenu();
+    }
+  } else {
+    toggleMobileMenu();
+    showAuthScreen();
+  }
+}
+
+function updateMobileAuthUI() {
+  const btn = document.getElementById('mobile-signin-btn');
+  const info = document.getElementById('mobile-user-info');
+  if (!btn) return;
+  if (isAuthenticated && currentUser) {
+    btn.textContent = 'Sign Out';
+    btn.style.color = 'var(--warn)';
+    if (info) {
+      info.style.display = 'block';
+      info.textContent = (currentUser.email || '') + ' · ' + currentRole;
+    }
+  } else {
+    btn.textContent = 'Sign In';
+    btn.style.color = 'var(--accent2)';
+    if (info) info.style.display = 'none';
+  }
+}
 
 // ── MOBILE NAV ────────────────────────────────────────────────────────
 function toggleMobileMenu() {
