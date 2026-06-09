@@ -274,14 +274,15 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
   .dates-meta{gap:12px;flex-wrap:wrap}
   .dfilter{font-size:10px;padding:4px 10px}
 
-  /* TIMELINE - mobile stack layout */
-  .tl-col-header{display:none !important}
+  /* TIMELINE - mobile */
   .tl-event-card::before{left:-20px;top:14px}
   .timeline{padding-left:20px}
-  .tl-event-inner{display:flex !important;flex-direction:column !important;gap:4px;padding:10px 8px}
-  .tl-event-inner > *{width:100% !important}
-  .tl-controls{justify-content:flex-end;gap:6px;margin-top:4px}
-  .tl-edit-btn,.tl-del-btn,.tl-move-btn{width:28px;height:28px}
+  .tl-event-inner{flex-wrap:wrap !important;gap:6px !important;padding:10px 8px !important;}
+  .tl-event-inner > div:nth-child(1){width:90px !important;flex-shrink:0}
+  .tl-event-inner > div:nth-child(2){flex:1 !important;min-width:0}
+  .tl-event-inner > div:nth-child(3){display:none !important}
+  .tl-event-inner > div:nth-child(4){flex-shrink:0}
+  .tl-controls{width:100% !important;justify-content:flex-end;gap:6px;margin-top:2px}
 
   /* ACTIONS */
   .actions-grid{grid-template-columns:1fr}
@@ -937,7 +938,7 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
       <h1>Team</h1>
       <p>Manage access · Invite crew</p>
     </div>
-    <button class="add-btn" onclick="showInviteModal()">+ Invite Person</button>
+    <button class="add-btn" onclick="showInviteModal()">+ Add Person</button>
   </div>
 
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;margin-bottom:32px;" id="team-list">
@@ -957,7 +958,7 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
 <div id="invite-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:center;justify-content:center;">
   <div style="background:var(--bg2);border:0.5px solid var(--line2);border-radius:10px;padding:32px;width:440px;max-width:92vw;">
     <div style="font-family:var(--font-display);font-size:28px;color:var(--text);margin-bottom:6px;letter-spacing:0.04em;">Invite Person</div>
-    <div style="font-family:var(--font-mono);font-size:11px;color:var(--dim);margin-bottom:24px;">They'll receive an email to set their password.</div>
+    <div style="font-family:var(--font-mono);font-size:11px;color:var(--dim);margin-bottom:24px;">Add them to the roster, then share the app link. They sign up and their role activates automatically.</div>
     <div style="display:flex;flex-direction:column;gap:14px;">
       <div>
         <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--dim);margin-bottom:6px;">Name</div>
@@ -980,7 +981,7 @@ footer{border-top:0.5px solid var(--line);padding:24px 32px;display:flex;justify
     <div id="invite-status" style="font-family:var(--font-mono);font-size:11px;margin-top:12px;min-height:16px;"></div>
     <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;">
       <button onclick="hideInviteModal()" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;padding:8px 18px;border-radius:4px;cursor:pointer;border:0.5px solid var(--line2);background:transparent;color:var(--muted);">Cancel</button>
-      <button id="invite-submit-btn" onclick="submitInvite()" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;padding:8px 18px;border-radius:4px;cursor:pointer;border:0.5px solid rgba(232,213,160,0.3);background:rgba(232,213,160,0.1);color:var(--accent);">Send Invite</button>
+      <button id="invite-submit-btn" onclick="submitInvite()" style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;padding:8px 18px;border-radius:4px;cursor:pointer;border:0.5px solid rgba(232,213,160,0.3);background:rgba(232,213,160,0.1);color:var(--accent);">Add to Team</button>
     </div>
   </div>
 </div>
@@ -1047,7 +1048,7 @@ const ROLE_TABS = {
   admin:      ['directory','tiers','labor','gear','dates','timeline','actions','team'],
   production: ['directory','gear','timeline','actions'],
   band:       ['directory','gear','timeline','actions'],
-  readonly:   ['dates','timeline'],
+  readonly:   ['directory','tiers','labor','gear','dates','timeline','actions'],
 };
 
 const ROLE_COLORS = {
@@ -1160,20 +1161,15 @@ function applyRole(role, displayName) {
 function setReadOnlyMode() {
   document.getElementById('lock-bar').style.display = 'flex';
 
-  // Show only readonly tabs in nav
-  const allowedTabs = ROLE_TABS.readonly;
+  // Show all tabs in readonly mode (no Team tab)
   document.querySelectorAll('.nav-link[onclick*="showPane"]').forEach(btn => {
     const match = btn.getAttribute('onclick').match(/showPane\(['"](\w+)['"]\)/);
-    if (match) btn.style.display = allowedTabs.includes(match[1]) ? '' : 'none';
+    if (match) btn.style.display = match[1] === 'team' ? 'none' : '';
   });
   document.querySelectorAll('.mobile-menu .nav-link').forEach(btn => {
     const match = (btn.getAttribute('onclick')||'').match(/showPane\w*\(['"](\w+)['"]\)/);
-    if (match) btn.style.display = allowedTabs.includes(match[1]) ? '' : 'none';
+    if (match) btn.style.display = match[1] === 'team' ? 'none' : '';
   });
-
-  // Navigate to first allowed tab
-  const activePaneId = document.querySelector('.pane.active')?.id?.replace('pane-','');
-  if (!allowedTabs.includes(activePaneId)) showPane('dates');
 
   // Hide all add/edit/archive buttons
   document.querySelectorAll('.add-btn,.del-btn,.tl-edit-btn,.tl-del-btn,.action-edit-btn,.action-del-btn').forEach(el => {
@@ -2473,23 +2469,20 @@ function renderTimeline() {
 
     const inner = document.createElement('div');
     inner.className = 'tl-event-inner' + (ev.milestone ? ' milestone-row' : '');
+    inner.style.cssText = 'display:flex;align-items:center;gap:16px;padding:12px 14px;';
     inner.innerHTML = `
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:0;">
-          <div style="font-family:var(--font-mono);font-size:11px;color:var(--dim);margin-bottom:4px;">${dateRange}</div>
-          <div class="${ev.milestone ? 'milestone-title' : ''}" style="font-size:${ev.milestone ? '15px' : '14px'};color:${ev.milestone ? 'var(--accent)' : 'var(--text)'};font-weight:400;line-height:1.3;">${ev.title}${flagHtml}</div>
-          ${ev.notes ? `<div style="font-size:11px;color:var(--muted);margin-top:3px;">${ev.notes}</div>` : ''}
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
-            ${ev.location ? `<span style="font-family:var(--font-mono);font-size:11px;color:var(--dim);">📍 ${ev.location}</span>` : ''}
-            ${configBadge(ev.config)}
-          </div>
-        </div>
-        <div class="tl-controls" style="flex-shrink:0;">
-          <button class="tl-move-btn" onclick="moveEvent(${ev.id},-1)" title="Move up">▲</button>
-          <button class="tl-move-btn" onclick="moveEvent(${ev.id},1)" title="Move down">▼</button>
-          <button class="tl-edit-btn" onclick="editEvent(${ev.id})" title="Edit">✎</button>
-          <button class="tl-del-btn" onclick="deleteEvent(${ev.id})" title="Delete">×</button>
-        </div>
+      <div style="width:110px;flex-shrink:0;font-family:var(--font-mono);font-size:11px;color:var(--dim);line-height:1.4;">${dateRange}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:${ev.milestone?'15px':'13px'};color:${ev.milestone?'var(--accent)':'var(--text)'};font-weight:${ev.milestone?'500':'400'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ev.title}${flagHtml}</div>
+        ${ev.notes ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ev.notes}</div>` : ''}
+      </div>
+      <div style="width:160px;flex-shrink:0;font-family:var(--font-mono);font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ev.location||''}</div>
+      <div style="width:80px;flex-shrink:0;">${configBadge(ev.config)}</div>
+      <div class="tl-controls" style="flex-shrink:0;display:flex;align-items:center;gap:3px;">
+        <button class="tl-move-btn" onclick="moveEvent(${ev.id},-1)" title="Move up">▲</button>
+        <button class="tl-move-btn" onclick="moveEvent(${ev.id},1)" title="Move down">▼</button>
+        <button class="tl-edit-btn" onclick="editEvent(${ev.id})" title="Edit">✎</button>
+        <button class="tl-del-btn" onclick="deleteEvent(${ev.id})" title="Delete">×</button>
       </div>
     `;
     card.appendChild(inner);
@@ -2727,26 +2720,26 @@ async function submitInvite() {
   const statusEl = document.getElementById('invite-status');
   const btn = document.getElementById('invite-submit-btn');
 
-  if (!name || !email) { statusEl.style.color = 'var(--warn)'; statusEl.textContent = 'Name and email required.'; return; }
+  if (!name || !email) {
+    statusEl.style.color = 'var(--warn)';
+    statusEl.textContent = 'Name and email required.';
+    return;
+  }
+
+  // Check not already added
+  if (teamMembers.find(m => m.email.toLowerCase() === email.toLowerCase())) {
+    statusEl.style.color = 'var(--warn)';
+    statusEl.textContent = email + ' is already on the team.';
+    return;
+  }
 
   btn.disabled = true;
-  btn.textContent = 'Sending...';
+  btn.textContent = 'Adding...';
   statusEl.textContent = '';
 
-  // 1. Send invite via Supabase Admin API (uses service role — needs edge function or admin SDK)
-  // Since we only have the anon key, we use the inviteUserByEmail via the auth admin endpoint
-  // Instead: create a placeholder user_roles entry and use Supabase Dashboard invite
-  // We'll use the signUp flow which sends a confirmation email
-  const { data: inviteData, error: inviteError } = await sb.auth.admin?.inviteUserByEmail?.(email) || { error: null };
-  
-  // Fallback: just create the role entry. Admin can invite from Supabase dashboard.
-  // Also try the standard approach
-  let userId = null;
-  
-  // Create the user_roles entry (will link when they sign in)
   const { data: roleData, error: roleError } = await sb.from('user_roles').insert([{
     user_id: null,
-    email,
+    email: email.toLowerCase(),
     role,
     name,
   }]).select();
@@ -2755,16 +2748,23 @@ async function submitInvite() {
     statusEl.style.color = 'var(--warn)';
     statusEl.textContent = 'Error: ' + roleError.message;
     btn.disabled = false;
-    btn.textContent = 'Send Invite';
+    btn.textContent = 'Add to Team';
     return;
   }
 
   teamMembers.push(roleData[0]);
   renderTeam();
 
+  // Show the app URL for sharing
+  const appUrl = window.location.origin + window.location.pathname;
   statusEl.style.color = 'var(--success)';
-  statusEl.textContent = '✓ ' + name + ' added. Send them the app link and have them sign up — their role will activate on first login.';
-  btn.textContent = 'Invite Another';
+  statusEl.innerHTML = '✓ <strong>' + name + '</strong> added as <strong>' + role + '</strong>.<br>'
+    + '<span style="color:var(--dim)">Share this link with them:</span><br>'
+    + '<span style="color:var(--accent2);font-family:var(--font-mono);font-size:10px;cursor:pointer;" onclick="navigator.clipboard.writeText('' + appUrl + '');this.textContent='Copied!'">'
+    + appUrl + ' (tap to copy)</span><br>'
+    + '<span style="color:var(--dim);font-size:10px;">They sign up with <strong style="color:var(--text);">' + email + '</strong> and their role activates automatically.</span>';
+
+  btn.textContent = 'Add Another';
   btn.disabled = false;
   document.getElementById('invite-name').value = '';
   document.getElementById('invite-email').value = '';
